@@ -9,7 +9,8 @@ public static class Accept
     private static Thread? autoAcceptThread;
     public static void StartAutoAccept()
     {
-        autoAcceptThread = new Thread(() => AutoAccept(cancellationTokenSource)
+        cancellationTokenSource = new CancellationTokenSource();
+        autoAcceptThread = new Thread(() => AutoAccept(cancellationTokenSource.Token))
         {
             IsBackground = true
         };
@@ -45,8 +46,10 @@ public static class Accept
                 Console.WriteLine($"Failed to accept the match. Status code: {response.StatusCode}");
                 break;
             }
-
-            Thread.Sleep(1000);
+            if(token.WaitHandle.WaitOne(1000))
+            {
+                break;
+            }
         }
     }
 
