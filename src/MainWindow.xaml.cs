@@ -19,6 +19,11 @@ public partial class MainWindow : Window
             acbtn.Content = "Disable Auto-Accept";
             Accept.StartAutoAccept(); 
         }
+        else{
+            TBHelloWorld.Text = "Auto-Accept Disabled"; 
+            acbtn.Content = "Enable Auto-Accept";
+            Accept.StopAutoAccept();
+        }
 
     }
 }

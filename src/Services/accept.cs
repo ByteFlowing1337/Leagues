@@ -1,19 +1,26 @@
 using System.Net.Http;
+using System.Threading;
 
 namespace Leagues.Helper;
 
 public static class Accept
 {
+    private static CancellationTokenSource? cancellationTokenSource;
+    private static Thread? autoAcceptThread;
     public static void StartAutoAccept()
     {
-        var autoAcceptThread = new Thread(AutoAccept)
+        autoAcceptThread = new Thread(() => AutoAccept(cancellationTokenSource)
         {
             IsBackground = true
         };
         autoAcceptThread.Start();
     }
+    public static void StopAutoAccept()
+    {
+        cancellationTokenSource?.Cancel();
+    }
 
-    public static void AutoAccept()
+    public static void AutoAccept(CancellationToken token)
     {
         using var client = Client.GetClient();
         if (client == null)
@@ -22,7 +29,7 @@ public static class Accept
             return;
         }
 
-        while (true)
+        while (!token.IsCancellationRequested)
         {
             var status = GetMatchStatus(client);
             if (status != null && status.Contains("\"state\":\"InProgress\"", StringComparison.Ordinal))
@@ -55,4 +62,5 @@ public static class Accept
         Console.WriteLine($"Failed to get match status. Status code: {response.StatusCode}");
         return null;
     }
+
 }
