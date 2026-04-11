@@ -4,7 +4,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
-namespace Leagues.Helper;
+namespace Leagues.Utils;
 
 public static class ReadRegistry
 {
@@ -19,7 +19,7 @@ public static class ReadRegistry
         }
         catch (Exception ex)
         {
-            AppLog.Info($"Error accessing registry: {ex.Message}");
+            AppLog.Logging($"Error accessing registry: {ex.Message}");
             return null;
         }
     }
@@ -56,7 +56,7 @@ public static class ReadRegistry
         }
         catch (Exception ex)
         {
-            AppLog.Info($"Error accessing registry: {ex.Message}");
+            AppLog.Logging($"Error accessing registry: {ex.Message}");
             return null;
         }
     }
@@ -71,7 +71,7 @@ public static class ReadRegistry
         }
         catch (Exception ex)
         {
-            AppLog.Info($"Error accessing registry: {ex.Message}");
+            AppLog.Logging($"Error accessing registry: {ex.Message}");
             return null;
         }
     }

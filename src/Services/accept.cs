@@ -1,4 +1,4 @@
-using Leagues.Helper;
+using Leagues.Utils;
 
 namespace Leagues.Services;
 
@@ -26,7 +26,7 @@ public static class Accept
         }
         catch (Exception ex)
         {
-            AppLog.Info($"Accept request failed: {ex.Message}");
+            AppLog.Logging($"Accept request failed: {ex.Message}");
             return false;
         }
     }
@@ -46,7 +46,7 @@ public static class Accept
         }
         catch (Exception ex)
         {
-            AppLog.Info($"Decline request failed: {ex.Message}");
+            AppLog.Logging($"Decline request failed: {ex.Message}");
             return false;
         }
     }

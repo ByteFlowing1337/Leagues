@@ -4,7 +4,8 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
-using Leagues.Helper;
+using Leagues.Logging;
+using Leagues.Utils;
 using Leagues.Services;
 
 namespace Leagues.ViewModels;
@@ -300,7 +301,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
             }
             catch (Exception ex)
             {
-                AppLog.Info($"Command execution failed: {ex.Message}");
+                AppLog.Logging($"Command execution failed: {ex.Message}");
             }
             finally
             {

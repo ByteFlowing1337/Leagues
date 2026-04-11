@@ -3,7 +3,7 @@ using System.Net.Http;
 using System.Net.WebSockets;
 using System.Text;
 
-namespace Leagues.Helper;
+namespace Leagues.Utils;
 
 public static class GetClient
 {

@@ -2,7 +2,7 @@ using System.Net.WebSockets;
 using System.IO;
 using System.Text;
 using System.Text.Json;
-namespace Leagues.Helper;
+namespace Leagues.Utils;
 
 public sealed class Phase : IAsyncDisposable
 {
