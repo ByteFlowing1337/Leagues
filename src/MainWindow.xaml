@@ -3,14 +3,50 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Leagues"
+        xmlns:vm="clr-namespace:Leagues.ViewModels"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        Style="{StaticResource MaterialDesignWindow}"
         mc:Ignorable="d"
+        Loaded="Window_Loaded"
+        Closed="Window_Closed"
+        d:DataContext="{d:DesignInstance vm:MainWindowViewModel}"
         Title="Leagues" Height="450" Width="800">
-    <Grid>
-        <TextBlock Name="TBHelloWorld" Text="Auto-Accept Disabled" FontSize="55" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <Button Name="acbtn" Content="Enable Auto-Accept" 
-				HorizontalAlignment="Center"
-				VerticalAlignment="Top" Width="200" Height="100"
-				Click="Toggle_AC"/>
+    <Grid Margin="24">
+        <materialDesign:Card Padding="24" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <StackPanel>
+                <TextBlock Text="{Binding StatusText}"
+                           Style="{StaticResource MaterialDesignHeadlineSmallTextBlock}"
+                           Margin="0,0,0,16"/>
+
+                <Button Content="Launch WeGame/Client"
+                        Style="{StaticResource MaterialDesignRaisedButton}"
+                        Margin="0,0,0,12"
+                    Visibility="{Binding LaunchClientVisibility}"
+                    Command="{Binding LaunchClientCommand}"/>
+
+                <Button Content="{Binding AutoAcceptButtonText}"
+                        Style="{StaticResource MaterialDesignRaisedButton}"
+                        Margin="0,0,0,12"
+                    Visibility="{Binding FeatureButtonsVisibility}"
+                    Command="{Binding ToggleAutoAcceptCommand}"/>
+
+                <Button Content="Decline Match"
+                        Style="{StaticResource MaterialDesignOutlinedButton}"
+                    Visibility="{Binding FeatureButtonsVisibility}"
+                    Command="{Binding DeclineMatchCommand}"/>
+
+                <TextBlock Text="Runtime Log"
+                           Margin="0,16,0,8"
+                           Style="{StaticResource MaterialDesignTitleSmallTextBlock}"/>
+
+                <Border Height="150"
+                        BorderThickness="1"
+                        BorderBrush="{DynamicResource MaterialDesignDivider}">
+                    <ListBox ItemsSource="{Binding LogEntries}"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
+                </Border>
+            </StackPanel>
+        </materialDesign:Card>
     </Grid>
 </Window>

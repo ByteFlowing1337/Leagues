@@ -1,12 +1,18 @@
 using System.Diagnostics;
 using System.Management;
 using System.Text.RegularExpressions;
+using Leagues.Services;
 
 namespace Leagues.Helper;
 
 public static class Credential
 {
     private const string TargetProcess = "LeagueClientUx";
+
+    public static bool IsLeagueClientRunning()
+    {
+        return Process.GetProcessesByName(TargetProcess).Length > 0;
+    }
 
     public static string? GetArgs()
     {
@@ -15,14 +21,14 @@ public static class Credential
             var process = Process.GetProcessesByName(TargetProcess).FirstOrDefault();
             if (process is null)
             {
-                Console.WriteLine("League client is not running.");
+                AppLog.Info("League client is not running.");
                 return null;
             }
 
             var commandLine = GetCommandLineWMI(process.Id);
             if (string.IsNullOrWhiteSpace(commandLine))
             {
-                Console.WriteLine($"Unable to read League client command line for PID {process.Id}.");
+                AppLog.Info($"Unable to read League client command line for PID {process.Id}.");
                 return null;
             }
 
@@ -30,7 +36,7 @@ public static class Credential
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error retrieving command line: {ex.Message}");
+            AppLog.Info($"Error retrieving command line: {ex.Message}");
             return null;
         }
     }
@@ -78,7 +84,7 @@ public static class Credential
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"WMI error: {ex.Message}");
+            AppLog.Info($"WMI error: {ex.Message}");
         }
         return null;
     }

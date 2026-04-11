@@ -1,29 +1,25 @@
-﻿using System.Data;
-using System.Reflection;
-using System.Windows;
-using Leagues.Helper;
+﻿using System.Windows;
+using Leagues.ViewModels;
+
 namespace Leagues;
+
 public partial class MainWindow : Window
 {
-    bool ac_enabled = false;
+    private readonly MainWindowViewModel viewModel = new();
+
     public MainWindow()
     {
         InitializeComponent();
-        }
-    private void Toggle_AC(object sender, RoutedEventArgs e)
-    {
-        ac_enabled = !ac_enabled; 
-        if (ac_enabled)
-        {
-            TBHelloWorld.Text = "Auto-Accept Enabled"; 
-            acbtn.Content = "Disable Auto-Accept";
-            Accept.StartAutoAccept(); 
-        }
-        else{
-            TBHelloWorld.Text = "Auto-Accept Disabled"; 
-            acbtn.Content = "Enable Auto-Accept";
-            Accept.StopAutoAccept();
-        }
+        DataContext = viewModel;
+    }
 
+    private async void Window_Loaded(object sender, RoutedEventArgs e)
+    {
+        await viewModel.InitializeAsync();
+    }
+
+    private async void Window_Closed(object? sender, EventArgs e)
+    {
+        await viewModel.ShutdownAsync();
     }
 }

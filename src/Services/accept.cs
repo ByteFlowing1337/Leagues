@@ -1,69 +1,58 @@
-using System.Net.Http;
-using System.Threading;
+using Leagues.Helper;
 
-namespace Leagues.Helper;
+namespace Leagues.Services;
 
 public static class Accept
 {
-    private static CancellationTokenSource? cancellationTokenSource;
-    private static Thread? autoAcceptThread;
+    public static bool IsAutoAcceptEnabled { get; private set; }
+
     public static void StartAutoAccept()
     {
-        cancellationTokenSource = new CancellationTokenSource();
-        autoAcceptThread = new Thread(() => AutoAccept(cancellationTokenSource.Token))
-        {
-            IsBackground = true
-        };
-        autoAcceptThread.Start();
+        IsAutoAcceptEnabled = true;
     }
+
     public static void StopAutoAccept()
     {
-        cancellationTokenSource?.Cancel();
+        IsAutoAcceptEnabled = false;
     }
 
-    public static void AutoAccept(CancellationToken token)
+    public static async Task<bool> AcceptMatchAsync()
     {
-        using var client = Client.GetClient();
-        if (client == null)
+        try
         {
-            Console.WriteLine("Failed to create HTTP client. Check credentials.");
-            return;
+            using var client = GetClient.CreateClient();
+            using var response = await client.PostAsync("lol-matchmaking/v1/ready-check/accept", null);
+            return response.IsSuccessStatusCode;
         }
-
-        while (!token.IsCancellationRequested)
+        catch (Exception ex)
         {
-            var status = GetMatchStatus(client);
-            if (status != null && status.Contains("\"state\":\"InProgress\"", StringComparison.Ordinal))
-            {
-                Console.WriteLine("Match found! Attempting to accept...");
-                var response = client.PostAsync("lol-matchmaking/v1/ready-check/accept", null).Result;
-                if (response.IsSuccessStatusCode)
-                {
-                    Console.WriteLine("Successfully accepted the match.");
-                    break;
-                }
-
-                Console.WriteLine($"Failed to accept the match. Status code: {response.StatusCode}");
-                break;
-            }
-            if(token.WaitHandle.WaitOne(1000))
-            {
-                break;
-            }
+            AppLog.Info($"Accept request failed: {ex.Message}");
+            return false;
         }
     }
 
-    public static string? GetMatchStatus(HttpClient client)
+    public static bool AcceptMatch()
     {
-        var response = client.GetAsync("lol-matchmaking/v1/ready-check").Result;
-        if (response.IsSuccessStatusCode)
-        {
-            var content = response.Content.ReadAsStringAsync().Result;
-            return content;
-        }
-
-        Console.WriteLine($"Failed to get match status. Status code: {response.StatusCode}");
-        return null;
+        return AcceptMatchAsync().GetAwaiter().GetResult();
     }
 
+    public static async Task<bool> DeclineMatchAsync()
+    {
+        try
+        {
+            using var client = GetClient.CreateClient();
+            using var response = await client.PostAsync("lol-matchmaking/v1/ready-check/decline", null);
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            AppLog.Info($"Decline request failed: {ex.Message}");
+            return false;
+        }
+    }
+
+    public static bool DeclineMatch()
+    {
+        return DeclineMatchAsync().GetAwaiter().GetResult();
+    }
 }
