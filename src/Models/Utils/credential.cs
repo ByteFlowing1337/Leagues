@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using Leagues.Logging;
 using Leagues.Services;
 
 namespace Leagues.Utils;

@@ -4,6 +4,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
+using Leagues.Logging;
 namespace Leagues.Utils;
 
 public static class ReadRegistry
