@@ -127,10 +127,16 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
 
     private void OnPhaseChanged(string phase)
     {
+        public bool declined = false;
         RunOnUiThread(() =>
         {
             StatusText = acEnabled ? "Auto-accept is enabled" : "Client connected, auto-accept is disabled";
         });
+
+        if (declined){
+            declined = !declined;
+            return;
+        }
 
         if (acEnabled && string.Equals(phase, "ReadyCheck", StringComparison.OrdinalIgnoreCase))
         {
@@ -187,7 +193,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         var declined = await Accept.DeclineMatchAsync();
         while (string.Equals(phaseMonitor.CurrentPhase, "ReadyCheck", StringComparison.OrdinalIgnoreCase))
         {
-            await Task.Delay(1000);
+            OnPhaseChanged.declined = true;
         }
 
         SetStatus(declined ? "Decline match request sent" : "Failed to decline match", appendLog: true);
