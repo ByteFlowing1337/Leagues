@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 using Leagues.Logging;
 using Leagues.Services;
 
-namespace Leagues.Utils;
+namespace Leagues.Models.Utils;
 
 public static class Credential
 {

@@ -5,7 +5,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
 using Leagues.Logging;
-using Leagues.Utils;
+using Leagues.Models.Utils;
 using Leagues.Services;
 
 namespace Leagues.ViewModels;
@@ -14,6 +14,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
 {
     private const int MaxLogEntries = 300;
     private readonly Phase phaseMonitor = new();
+    private readonly accepted acceptedMonitor = new();
     private readonly Dispatcher dispatcher;
     private readonly DispatcherTimer clientPollTimer = new() { Interval = TimeSpan.FromSeconds(2) };
 
@@ -34,6 +35,8 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
 
         phaseMonitor.PhaseChanged += OnPhaseChanged;
         phaseMonitor.MonitorError += OnPhaseMonitorError;
+        acceptedMonitor.AcceptChanged += OnAcceptChanged;
+        acceptedMonitor.MonitorError += OnAcceptMonitorError;
         AppLog.MessageRaised += OnLogMessage;
         clientPollTimer.Tick += ClientPollTimer_Tick;
     }
@@ -88,8 +91,11 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         clientPollTimer.Stop();
         phaseMonitor.PhaseChanged -= OnPhaseChanged;
         phaseMonitor.MonitorError -= OnPhaseMonitorError;
+        acceptedMonitor.AcceptChanged -= OnAcceptChanged;
+        acceptedMonitor.MonitorError -= OnAcceptMonitorError;
         AppLog.MessageRaised -= OnLogMessage;
         await phaseMonitor.StopAsync();
+        await acceptedMonitor.StopAsync();
     }
 
     private async void ClientPollTimer_Tick(object? sender, EventArgs e)
@@ -102,6 +108,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         if (!Credential.IsLeagueClientRunning())
         {
             await phaseMonitor.StopAsync();
+            await acceptedMonitor.StopAsync();
             ShowLaunchMode();
             return;
         }
@@ -112,7 +119,11 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
             SetStatus("Client detected, connecting to API...", appendLog: false);
 
             await phaseMonitor.StartAsync();
+        }
 
+        if (!acceptedMonitor.IsMonitoring)
+        {
+            await acceptedMonitor.StartAsync();
         }
     }
 
@@ -120,6 +131,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     {
         LaunchClientVisibility = Visibility.Visible;
         FeatureButtonsVisibility = Visibility.Collapsed;
+        DeclineButtonVisibility = Visibility.Collapsed;
         SetStatus("Client is not running.", appendLog: false);
     }
 
@@ -129,15 +141,14 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         FeatureButtonsVisibility = Visibility.Visible;
     }
     
-    private volatile bool suppressNextAutoAccept = false;
+    private volatile bool suppressNextAutoAccept;
     private void OnPhaseChanged(string phase)
     {
-        
         RunOnUiThread(() =>
         {
             StatusText = acEnabled ? "Auto-accept enabled" : "Auto-accept disabled";
         });
-        
+
         if (!acEnabled || !string.Equals(phase, "ReadyCheck", StringComparison.OrdinalIgnoreCase))
         {
             return;
@@ -149,14 +160,23 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
             return;
         }
 
-        if (Accept.AcceptMatch())
-        {
-            DeclineButtonVisibility = Visibility.Visible;
-        }
+        _ = TryAutoAcceptAsync();
     }
-    
+
+    private void OnAcceptChanged(bool isAccepted)
+    {
+        RunOnUiThread(() =>
+        {
+            DeclineButtonVisibility = isAccepted ? Visibility.Visible : Visibility.Collapsed;
+        });
+    }
 
     private void OnPhaseMonitorError(string message)
+    {
+        SetStatus(message, appendLog: true);
+    }
+
+    private void OnAcceptMonitorError(string message)
     {
         SetStatus(message, appendLog: true);
     }

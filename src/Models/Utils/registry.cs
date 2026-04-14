@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace Leagues.Utils;
+namespace Leagues.Models.Utils;
 
 public static class ReadRegistry
 {

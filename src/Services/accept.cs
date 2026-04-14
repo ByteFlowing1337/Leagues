@@ -1,4 +1,4 @@
-using Leagues.Utils;
+using Leagues.Models.Utils;
 using Leagues.Logging;
 
 namespace Leagues.Services;
