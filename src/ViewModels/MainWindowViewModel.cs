@@ -104,7 +104,10 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         {
             SetStatus("Client detected, connecting to API...", appendLog: false);
 
-            await phaseMonitor.StartAsync();
+            if (!await phaseMonitor.StartAsync())
+            {
+                SetStatus("Client detected, but monitoring could not be started.", appendLog: true);
+            }
 
         }
     }
@@ -132,7 +135,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         });
 
 
-        if (!acEnabled && !string.Equals(phase, "ReadyCheck", StringComparison.OrdinalIgnoreCase))
+        if (!acEnabled || !string.Equals(phase, "ReadyCheck", StringComparison.OrdinalIgnoreCase))
         {
             return;
         }
@@ -193,10 +196,8 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
 
     private async Task DeclineMatchAsync()
     {
-        var declined = await Accept.DeclineMatchAsync();
-
         suppressNextAutoAccept = true;
-
+        var declined = await Accept.DeclineMatchAsync();
         SetStatus(declined ? "Decline match request sent" : "Failed to decline match", appendLog: true);
     }
 
