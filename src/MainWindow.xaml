@@ -18,7 +18,7 @@
                            Style="{StaticResource MaterialDesignHeadlineSmallTextBlock}"
                            Margin="0,0,0,16"/>
 
-                <Button Content="Launch WeGame/Client"
+                <Button Content="Launch Client"
                         Style="{StaticResource MaterialDesignRaisedButton}"
                         Margin="0,0,0,12"
                     Visibility="{Binding LaunchClientVisibility}"
@@ -32,7 +32,7 @@
 
                 <Button Content="Decline Match"
                         Style="{StaticResource MaterialDesignOutlinedButton}"
-                    Visibility="{Binding FeatureButtonsVisibility}"
+                    Visibility="{Binding DeclineButtonVisibility}"
                     Command="{Binding DeclineMatchCommand}"/>
 
                 <TextBlock Text="Runtime Log"

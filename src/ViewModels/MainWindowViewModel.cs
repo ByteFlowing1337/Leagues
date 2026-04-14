@@ -20,6 +20,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     private string statusText = "Checking Client...";
     private Visibility launchClientVisibility = Visibility.Visible;
     private Visibility featureButtonsVisibility = Visibility.Collapsed;
+    private Visibility declineButtonVisibility = Visibility.Collapsed;
     private string autoAcceptButtonText = "Enable Auto-Accept";
     private bool acEnabled;
 
@@ -57,6 +58,12 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     {
         get => featureButtonsVisibility;
         private set => SetField(ref featureButtonsVisibility, value);
+    }
+
+    public Visibility DeclineButtonVisibility
+    {
+        get => declineButtonVisibility;
+        private set => SetField(ref declineButtonVisibility, value);
     }
 
     public string AutoAcceptButtonText
@@ -131,8 +138,12 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
             StatusText = acEnabled ? "Auto-accept enabled" : "Auto-accept disabled";
         });
 
-
-        if (!acEnabled && !string.Equals(phase, "ReadyCheck", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(phase, "ReadyCheck", StringComparison.OrdinalIgnoreCase))
+        {
+            DeclineButtonVisibility = Visibility.Collapsed;
+        }
+        
+        if (!acEnabled || !string.Equals(phase, "ReadyCheck", StringComparison.OrdinalIgnoreCase))
         {
             return;
         }
@@ -144,6 +155,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         }
 
         _ = TryAutoAcceptAsync();
+        DeclineButtonVisibility = Visibility.Visible;
         }
     
 
