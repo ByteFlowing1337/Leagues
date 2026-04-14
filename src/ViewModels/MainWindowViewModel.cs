@@ -137,11 +137,6 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         {
             StatusText = acEnabled ? "Auto-accept enabled" : "Auto-accept disabled";
         });
-
-        if (string.Equals(phase, "ReadyCheck", StringComparison.OrdinalIgnoreCase))
-        {
-            DeclineButtonVisibility = Visibility.Collapsed;
-        }
         
         if (!acEnabled || !string.Equals(phase, "ReadyCheck", StringComparison.OrdinalIgnoreCase))
         {
@@ -150,13 +145,15 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
 
         if (suppressNextAutoAccept)
         {
-                suppressNextAutoAccept = false;
-                return;
+            suppressNextAutoAccept = false;
+            return;
         }
 
-        _ = TryAutoAcceptAsync();
-        DeclineButtonVisibility = Visibility.Visible;
+        if (Accept.AcceptMatch())
+        {
+            DeclineButtonVisibility = Visibility.Visible;
         }
+    }
     
 
     private void OnPhaseMonitorError(string message)
@@ -208,8 +205,9 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         var declined = await Accept.DeclineMatchAsync();
 
         suppressNextAutoAccept = true;
+        DeclineButtonVisibility = Visibility.Collapsed;
 
-        SetStatus(declined ? "Decline match request sent" : "Failed to decline match", appendLog: true);
+        SetStatus(declined ? "Declined match" : "Failed to decline match", appendLog: true);
     }
 
     private void SetStatus(string message, bool appendLog)
