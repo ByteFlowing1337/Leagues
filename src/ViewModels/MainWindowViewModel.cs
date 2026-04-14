@@ -122,7 +122,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         FeatureButtonsVisibility = Visibility.Visible;
     }
     
-    private bool compressNextAutoAccept =  false;
+    private volatile bool suppressNextAutoAccept = false;
     private void OnPhaseChanged(string phase)
     {
         
@@ -131,17 +131,21 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
             StatusText = acEnabled ? "Auto-accept enabled" : "Auto-accept disabled";
         });
 
-        if (compressNextAutoAccept)
+
+        if (!acEnabled && !string.Equals(phase, "ReadyCheck", StringComparison.OrdinalIgnoreCase))
         {
-            compressNextAutoAccept = !compressNextAutoAccept;
             return;
         }
 
-        if (acEnabled && string.Equals(phase, "ReadyCheck", StringComparison.OrdinalIgnoreCase))
+        if (suppressNextAutoAccept)
         {
-            _ = TryAutoAcceptAsync();
+                suppressNextAutoAccept = false;
+                return;
         }
-    }
+
+        _ = TryAutoAcceptAsync();
+        }
+    
 
     private void OnPhaseMonitorError(string message)
     {
@@ -191,7 +195,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     {
         var declined = await Accept.DeclineMatchAsync();
 
-        compressNextAutoAccept = true;
+        suppressNextAutoAccept = true;
 
         SetStatus(declined ? "Decline match request sent" : "Failed to decline match", appendLog: true);
     }
