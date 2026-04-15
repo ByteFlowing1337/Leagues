@@ -1,22 +1,10 @@
-using Leagues.Utils;
-using Leagues.Logging;
+using Leagues.Models.Utils;
+using Leagues.Models.Logging;
 
 namespace Leagues.Services;
 
 public static class Accept
 {
-    public static bool IsAutoAcceptEnabled { get; private set; }
-
-    public static void StartAutoAccept()
-    {
-        IsAutoAcceptEnabled = true;
-    }
-
-    public static void StopAutoAccept()
-    {
-        IsAutoAcceptEnabled = false;
-    }
-
     public static async Task<bool> AcceptMatchAsync()
     {
         try
