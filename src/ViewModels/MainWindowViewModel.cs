@@ -20,7 +20,8 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     private string statusText = "Checking Client...";
     private Visibility launchClientVisibility = Visibility.Visible;
     private Visibility featureButtonsVisibility = Visibility.Collapsed;
-    private string autoAcceptButtonText = "Enable Auto-Accept";
+    private Visibility logVisibility = Visibility.Collapsed;
+    private string autoAcceptButtonText = "Enable AutoAccept";
     private bool acEnabled;
     private volatile bool suppressNextAutoAccept;
 
@@ -58,6 +59,12 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     {
         get => featureButtonsVisibility;
         private set => SetField(ref featureButtonsVisibility, value);
+    }
+
+    public Visibility LogVisibility
+    {
+        get => logVisibility;
+        private set => SetField(ref logVisibility, value);
     }
 
     public string AutoAcceptButtonText
@@ -128,7 +135,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
 
     private void OnPhaseChanged(string phase)
     {
-        RunOnUiThread(() => { StatusText = acEnabled ? "Auto-accept enabled" : "Auto-accept disabled"; });
+        RunOnUiThread(() => { StatusText = acEnabled ? "AutoAccept enabled" : "AutoAccept disabled"; });
 
         bool isReadyCheck = string.Equals(phase, "ReadyCheck", StringComparison.OrdinalIgnoreCase);
 
@@ -166,7 +173,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     {
         var accepted = await Accept.AcceptMatchAsync();
         SetStatus(
-            accepted ? "ReadyCheck detected, accepted automatically" : "ReadyCheck detected, but auto-accept failed",
+            accepted ? "ReadyCheck detected, accepted automatically" : "ReadyCheck detected, but AutoAccept failed",
             appendLog: true);
     }
 
@@ -176,11 +183,11 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
 
         if (acEnabled)
         {
-            AutoAcceptButtonText = "Disable Auto-Accept";
+            AutoAcceptButtonText = "Disable AutoAccept";
             return;
         }
 
-        AutoAcceptButtonText = "Enable Auto-Accept";
+        AutoAcceptButtonText = "Enable AutoAccept";
     }
 
     private void LaunchClient()
