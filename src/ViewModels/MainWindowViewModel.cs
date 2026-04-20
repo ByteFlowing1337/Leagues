@@ -20,7 +20,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     private string statusText = "Checking Client...";
     private Visibility launchClientVisibility = Visibility.Visible;
     private Visibility featureButtonsVisibility = Visibility.Collapsed;
-    private Visibility logVisibility = Visibility.Collapsed;
+    private Visibility logVisibility = Visibility.Visible;
     private string autoAcceptButtonText = "Enable AutoAccept";
     private bool acEnabled;
     private volatile bool suppressNextAutoAccept;
