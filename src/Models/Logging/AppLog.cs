@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace Leagues.Logging;
+namespace Leagues.Models.Logging;
 
 public static class AppLog
 {

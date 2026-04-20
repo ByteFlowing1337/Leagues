@@ -2,7 +2,8 @@ using System.Net.WebSockets;
 using System.IO;
 using System.Text;
 using System.Text.Json;
-namespace Leagues.Utils;
+
+namespace Leagues.Models.Utils;
 
 public sealed class Phase : IAsyncDisposable
 {
@@ -123,7 +124,8 @@ public sealed class Phase : IAsyncDisposable
 
             var eventName = root[1].ValueKind == JsonValueKind.String ? root[1].GetString() : null;
             if (!string.Equals(eventName, "OnJsonApiEvent", StringComparison.OrdinalIgnoreCase) &&
-                !string.Equals(eventName, "OnJsonApiEvent_lol-gameflow_v1_gameflow-phase", StringComparison.OrdinalIgnoreCase))
+                !string.Equals(eventName, "OnJsonApiEvent_lol-gameflow_v1_gameflow-phase",
+                    StringComparison.OrdinalIgnoreCase))
             {
                 return null;
             }

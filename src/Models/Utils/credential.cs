@@ -1,10 +1,9 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
-using Leagues.Logging;
-using Leagues.Services;
+using Leagues.Models.Logging;
 
-namespace Leagues.Utils;
+namespace Leagues.Models.Utils;
 
 public static class Credential
 {
@@ -19,7 +18,7 @@ public static class Credential
         return Process.GetProcessesByName(TargetProcess).Length > 0;
     }
 
-    public static string? GetArgs()
+    private static string? GetArgs()
     {
         string? fallbackArgs = null;
 
@@ -78,12 +77,8 @@ public static class Credential
         }
 
         var match = Regex.Match(arguments, Regex.Escape(argumentName) + @"([^""\s]+)");
-        if (match.Success)
-        {
-            return match.Groups[1].Value;
-        }
 
-        return null;
+        return match.Success ? match.Groups[1].Value : null;
     }
 
     private static string? TryGetProcessCommandLine(int processId)

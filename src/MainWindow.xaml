@@ -18,7 +18,7 @@
                            Style="{StaticResource MaterialDesignHeadlineSmallTextBlock}"
                            Margin="0,0,0,16"/>
 
-                <Button Content="Launch WeGame/Client"
+                <Button Content="Launch Client"
                         Style="{StaticResource MaterialDesignRaisedButton}"
                         Margin="0,0,0,12"
                     Visibility="{Binding LaunchClientVisibility}"
@@ -37,11 +37,13 @@
 
                 <TextBlock Text="Runtime Log"
                            Margin="0,16,0,8"
+                           Visibility="{Binding LogVisibility}"
                            Style="{StaticResource MaterialDesignTitleSmallTextBlock}"/>
 
                 <Border Height="150"
                         BorderThickness="1"
-                        BorderBrush="{DynamicResource MaterialDesignDivider}">
+                        BorderBrush="{DynamicResource MaterialDesignDivider}"
+                        Visibility="{Binding LogVisibility}">
                     <ListBox ItemsSource="{Binding LogEntries}"
                              ScrollViewer.VerticalScrollBarVisibility="Auto"
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>

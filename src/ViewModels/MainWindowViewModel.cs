@@ -4,8 +4,8 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
-using Leagues.Logging;
-using Leagues.Utils;
+using Leagues.Models.Utils;
+using Leagues.Models.Logging;
 using Leagues.Services;
 
 namespace Leagues.ViewModels;
@@ -17,11 +17,13 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     private readonly Dispatcher dispatcher;
     private readonly DispatcherTimer clientPollTimer = new() { Interval = TimeSpan.FromSeconds(2) };
 
-    private string statusText = "Checking LOL Client...";
+    private string statusText = "Checking Client...";
     private Visibility launchClientVisibility = Visibility.Visible;
     private Visibility featureButtonsVisibility = Visibility.Collapsed;
-    private string autoAcceptButtonText = "Enable Auto-Accept";
+    private Visibility logVisibility = Visibility.Visible;
+    private string autoAcceptButtonText = "Enable AutoAccept";
     private bool acEnabled;
+    private volatile bool suppressNextAutoAccept;
 
     public MainWindowViewModel()
     {
@@ -57,6 +59,12 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     {
         get => featureButtonsVisibility;
         private set => SetField(ref featureButtonsVisibility, value);
+    }
+
+    public Visibility LogVisibility
+    {
+        get => logVisibility;
+        private set => SetField(ref logVisibility, value);
     }
 
     public string AutoAcceptButtonText
@@ -102,12 +110,11 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         ShowFeatureMode();
         if (!phaseMonitor.IsMonitoring)
         {
-            SetStatus("LOL client detected, connecting to API...", appendLog: false);
+            SetStatus("Client detected, connecting to API...", appendLog: false);
 
-            var started = await phaseMonitor.StartAsync();
-            if (!started)
+            if (!await phaseMonitor.StartAsync())
             {
-                SetStatus("LOL is running, but the API is not ready yet. Retrying...", appendLog: true);
+                SetStatus("Client detected, but monitoring could not be started.", appendLog: false);
             }
         }
     }
@@ -116,7 +123,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     {
         LaunchClientVisibility = Visibility.Visible;
         FeatureButtonsVisibility = Visibility.Collapsed;
-        SetStatus("LOL client is not running. Please launch the client first.", appendLog: false);
+        SetStatus("Client is not running.", appendLog: false);
     }
 
     private void ShowFeatureMode()
@@ -125,18 +132,32 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         FeatureButtonsVisibility = Visibility.Visible;
     }
 
+
     private void OnPhaseChanged(string phase)
     {
-        RunOnUiThread(() =>
-        {
-            StatusText = acEnabled ? "Auto-accept is enabled" : "Client connected, auto-accept is disabled";
-        });
+        RunOnUiThread(() => { StatusText = acEnabled ? "AutoAccept enabled" : "AutoAccept disabled"; });
 
-        if (acEnabled && string.Equals(phase, "ReadyCheck", StringComparison.OrdinalIgnoreCase))
+        bool isReadyCheck = string.Equals(phase, "ReadyCheck", StringComparison.OrdinalIgnoreCase);
+
+        if (!isReadyCheck)
         {
-            _ = TryAutoAcceptAsync();
+            suppressNextAutoAccept = false;
         }
+
+        if (!acEnabled || !isReadyCheck)
+        {
+            return;
+        }
+
+        if (suppressNextAutoAccept)
+        {
+            suppressNextAutoAccept = false;
+            return;
+        }
+
+        _ = TryAutoAcceptAsync();
     }
+
 
     private void OnPhaseMonitorError(string message)
     {
@@ -151,7 +172,9 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     private async Task TryAutoAcceptAsync()
     {
         var accepted = await Accept.AcceptMatchAsync();
-        SetStatus(accepted ? "ReadyCheck detected, accepted automatically" : "ReadyCheck detected, but auto-accept failed", appendLog: true);
+        SetStatus(
+            accepted ? "ReadyCheck detected, accepted automatically" : "ReadyCheck detected, but AutoAccept failed",
+            appendLog: true);
     }
 
     private void ToggleAutoAccept()
@@ -160,15 +183,11 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
 
         if (acEnabled)
         {
-            AutoAcceptButtonText = "Disable Auto-Accept";
-            Accept.StartAutoAccept();
-            SetStatus("Auto-accept is enabled", appendLog: true);
+            AutoAcceptButtonText = "Disable AutoAccept";
             return;
         }
 
-        AutoAcceptButtonText = "Enable Auto-Accept";
-        Accept.StopAutoAccept();
-        SetStatus("Auto-accept is disabled", appendLog: true);
+        AutoAcceptButtonText = "Enable AutoAccept";
     }
 
     private void LaunchClient()
@@ -184,12 +203,8 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
 
     private async Task DeclineMatchAsync()
     {
+        suppressNextAutoAccept = true;
         var declined = await Accept.DeclineMatchAsync();
-        while (string.Equals(phaseMonitor.CurrentPhase, "ReadyCheck", StringComparison.OrdinalIgnoreCase))
-        {
-            await Task.Delay(1000);
-        }
-
         SetStatus(declined ? "Decline match request sent" : "Failed to decline match", appendLog: true);
     }
 

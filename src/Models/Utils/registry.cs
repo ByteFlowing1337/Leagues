@@ -1,10 +1,10 @@
 using Microsoft.Win32;
-using Leagues.Logging;
+using Leagues.Models.Logging;
 using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace Leagues.Utils;
+namespace Leagues.Models.Utils;
 
 public static class ReadRegistry
 {
@@ -244,7 +244,8 @@ public static class ReadRegistry
                     }
                     catch (Exception ex)
                     {
-                        AppLog.Logging($"Uninstall registry probe failed ({hive}/{view}/{uninstallRoot}): {ex.Message}");
+                        AppLog.Logging(
+                            $"Uninstall registry probe failed ({hive}/{view}/{uninstallRoot}): {ex.Message}");
                     }
                 }
             }
