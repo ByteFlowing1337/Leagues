@@ -2,8 +2,9 @@ using System.Net.Http.Headers;
 using System.Net.Http;
 using System.Net.WebSockets;
 using System.Text;
+using System;
 
-namespace Leagues.Models.Utils;
+namespace Leagues.Models.Client;
 
 public static class GetClient
 {

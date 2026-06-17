@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using System.Text.Json;
 
-namespace Leagues.Models.Utils;
+namespace Leagues.Models.Client;
 
 public sealed class Phase : IAsyncDisposable
 {
@@ -12,8 +12,8 @@ public sealed class Phase : IAsyncDisposable
     private Task? monitorTask;
     private string? lastPhase;
 
-    public event Action<string>? PhaseChanged;
-    public event Action<string>? MonitorError;
+    public event Action<string>? OnPhaseChanged;
+    public event Action<string>? OnMonitorError;
 
     public bool IsMonitoring =>
         socket is { State: WebSocketState.Open } && monitorTask is { IsCompleted: false };
@@ -40,7 +40,7 @@ public sealed class Phase : IAsyncDisposable
         }
         catch (Exception ex)
         {
-            MonitorError?.Invoke($"Phase websocket start failed: {ex.Message}");
+            OnMonitorError?.Invoke($"Phase websocket start failed: {ex.Message}");
             await StopAsync();
             return false;
         }
@@ -91,7 +91,7 @@ public sealed class Phase : IAsyncDisposable
                 if (!string.Equals(lastPhase, phase, StringComparison.OrdinalIgnoreCase))
                 {
                     lastPhase = phase;
-                    PhaseChanged?.Invoke(phase);
+                    OnPhaseChanged?.Invoke(phase);
                 }
             }
         }
@@ -100,7 +100,7 @@ public sealed class Phase : IAsyncDisposable
         }
         catch (Exception ex)
         {
-            MonitorError?.Invoke($"Phase websocket receive failed: {ex.Message}");
+            OnMonitorError?.Invoke($"Phase websocket receive failed: {ex.Message}");
             await StopAsync();
         }
     }

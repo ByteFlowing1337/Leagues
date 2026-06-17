@@ -8,6 +8,8 @@ namespace Leagues.Models.Utils;
 
 public static class ReadRegistry
 {
+    private static Logger logger = Logging.Logging.GetLogger();
+
     private static readonly RegistryHive[] RegistryHives =
     {
         RegistryHive.CurrentUser,
@@ -131,6 +133,7 @@ public static class ReadRegistry
         if (string.IsNullOrWhiteSpace(launcherPath))
         {
             errorMessage = "Unable to resolve WeGame/Riot/LoL launcher path from registry and system sources.";
+            logger.Error(errorMessage);
             return false;
         }
 
@@ -154,6 +157,7 @@ public static class ReadRegistry
         catch (Exception ex)
         {
             errorMessage = ex.Message;
+            logger.Error(errorMessage);
             return false;
         }
     }
@@ -186,7 +190,7 @@ public static class ReadRegistry
                     }
                     catch (Exception ex)
                     {
-                        AppLog.Logging($"Registry probe failed ({hive}/{view}/{registryPath}): {ex.Message}");
+                        logger.Error($"Registry probe failed ({hive}/{view}/{registryPath}): {ex.Message}");
                     }
                 }
             }
@@ -244,7 +248,7 @@ public static class ReadRegistry
                     }
                     catch (Exception ex)
                     {
-                        AppLog.Logging(
+                        logger.Error(
                             $"Uninstall registry probe failed ({hive}/{view}/{uninstallRoot}): {ex.Message}");
                     }
                 }
@@ -372,7 +376,7 @@ public static class ReadRegistry
         }
         catch (Exception ex)
         {
-            AppLog.Logging($"Unable to enumerate local drives: {ex.Message}");
+            logger.Error($"Unable to enumerate local drives: {ex.Message}");
             return Array.Empty<string>();
         }
     }
@@ -393,7 +397,7 @@ public static class ReadRegistry
                 }
                 catch (Exception ex)
                 {
-                    AppLog.Logging($"Unable to inspect process path for {processName}: {ex.Message}");
+                    logger.Error($"Unable to inspect process path for {processName}: {ex.Message}");
                 }
             }
         }

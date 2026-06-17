@@ -16,37 +16,37 @@
             <StackPanel>
                 <TextBlock Text="{Binding StatusText}"
                            Style="{StaticResource MaterialDesignHeadlineSmallTextBlock}"
-                           Margin="0,0,0,16"/>
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Margin="0 0 0 16" />
 
                 <Button Content="Launch Client"
                         Style="{StaticResource MaterialDesignRaisedButton}"
                         Margin="0,0,0,12"
-                    Visibility="{Binding LaunchClientVisibility}"
-                    Command="{Binding LaunchClientCommand}"/>
+                        Visibility="{Binding LaunchClientVisibility}"
+                        Command="{Binding LaunchClientCommand}" />
 
                 <Button Content="{Binding AutoAcceptButtonText}"
                         Style="{StaticResource MaterialDesignRaisedButton}"
                         Margin="0,0,0,12"
-                    Visibility="{Binding FeatureButtonsVisibility}"
-                    Command="{Binding ToggleAutoAcceptCommand}"/>
+                        Visibility="{Binding FeatureButtonsVisibility}"
+                        Command="{Binding ToggleAutoAcceptCommand}" />
 
                 <Button Content="Decline Match"
                         Style="{StaticResource MaterialDesignOutlinedButton}"
-                    Visibility="{Binding FeatureButtonsVisibility}"
-                    Command="{Binding DeclineMatchCommand}"/>
+                        Visibility="{Binding FeatureButtonsVisibility}"
+                        Command="{Binding DeclineMatchCommand}" />
 
                 <TextBlock Text="Runtime Log"
                            Margin="0,16,0,8"
-                           Visibility="{Binding LogVisibility}"
-                           Style="{StaticResource MaterialDesignTitleSmallTextBlock}"/>
+                           Style="{StaticResource MaterialDesignTitleSmallTextBlock}" />
 
                 <Border Height="150"
                         BorderThickness="1"
-                        BorderBrush="{DynamicResource MaterialDesignDivider}"
-                        Visibility="{Binding LogVisibility}">
+                        BorderBrush="{DynamicResource MaterialDesignDivider}">
                     <ListBox ItemsSource="{Binding LogEntries}"
                              ScrollViewer.VerticalScrollBarVisibility="Auto"
-                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled" />
                 </Border>
             </StackPanel>
         </materialDesign:Card>

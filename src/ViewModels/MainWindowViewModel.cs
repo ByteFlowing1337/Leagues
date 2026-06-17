@@ -5,14 +5,16 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
 using Leagues.Models.Utils;
+using Leagues.Models.Client;
 using Leagues.Models.Logging;
-using Leagues.Services;
+using Leagues.Models.Services;
 
 namespace Leagues.ViewModels;
 
 public sealed class MainWindowViewModel : INotifyPropertyChanged
 {
-    private const int MaxLogEntries = 300;
+    public ObservableCollection<string> LogEntries => Logger.LogEntries;
+    private static Logger logger = Logging.GetLogger();
     private readonly Phase phaseMonitor = new();
     private readonly Dispatcher dispatcher;
     private readonly DispatcherTimer clientPollTimer = new() { Interval = TimeSpan.FromSeconds(2) };
@@ -20,7 +22,6 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     private string statusText = "Checking Client...";
     private Visibility launchClientVisibility = Visibility.Visible;
     private Visibility featureButtonsVisibility = Visibility.Collapsed;
-    private Visibility logVisibility = Visibility.Visible;
     private string autoAcceptButtonText = "Enable AutoAccept";
     private bool acEnabled;
     private volatile bool suppressNextAutoAccept;
@@ -33,15 +34,13 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         ToggleAutoAcceptCommand = new RelayCommand(ToggleAutoAccept);
         DeclineMatchCommand = new AsyncRelayCommand(DeclineMatchAsync);
 
-        phaseMonitor.PhaseChanged += OnPhaseChanged;
-        phaseMonitor.MonitorError += OnPhaseMonitorError;
-        AppLog.MessageRaised += OnLogMessage;
+        phaseMonitor.OnPhaseChanged += OnPhaseChanged;
+        phaseMonitor.OnMonitorError += OnPhaseMonitorError;
         clientPollTimer.Tick += ClientPollTimer_Tick;
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    public ObservableCollection<string> LogEntries { get; } = new();
 
     public string StatusText
     {
@@ -61,11 +60,6 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         private set => SetField(ref featureButtonsVisibility, value);
     }
 
-    public Visibility LogVisibility
-    {
-        get => logVisibility;
-        private set => SetField(ref logVisibility, value);
-    }
 
     public string AutoAcceptButtonText
     {
@@ -79,7 +73,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
 
     public async Task InitializeAsync()
     {
-        AppendLog("Application started, checking client status");
+        logger.Info("Initializing...");
         await RefreshUiAsync();
         clientPollTimer.Start();
     }
@@ -87,9 +81,8 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     public async Task ShutdownAsync()
     {
         clientPollTimer.Stop();
-        phaseMonitor.PhaseChanged -= OnPhaseChanged;
-        phaseMonitor.MonitorError -= OnPhaseMonitorError;
-        AppLog.MessageRaised -= OnLogMessage;
+        phaseMonitor.OnPhaseChanged -= OnPhaseChanged;
+        phaseMonitor.OnMonitorError -= OnPhaseMonitorError;
         await phaseMonitor.StopAsync();
     }
 
@@ -110,11 +103,11 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         ShowFeatureMode();
         if (!phaseMonitor.IsMonitoring)
         {
-            SetStatus("Client detected, connecting to API...", appendLog: false);
+            SetStatus("Client detected, connecting to API...");
 
             if (!await phaseMonitor.StartAsync())
             {
-                SetStatus("Client detected, but monitoring could not be started.", appendLog: false);
+                SetStatus("Client detected, but monitoring could not be started.");
             }
         }
     }
@@ -123,7 +116,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     {
         LaunchClientVisibility = Visibility.Visible;
         FeatureButtonsVisibility = Visibility.Collapsed;
-        SetStatus("Client is not running.", appendLog: false);
+        SetStatus("Client is not running.");
     }
 
     private void ShowFeatureMode()
@@ -161,20 +154,15 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
 
     private void OnPhaseMonitorError(string message)
     {
-        SetStatus(message, appendLog: true);
+        SetStatus(message);
     }
 
-    private void OnLogMessage(string message)
-    {
-        SetStatus(message, appendLog: true);
-    }
 
     private async Task TryAutoAcceptAsync()
     {
-        var accepted = await Accept.AcceptMatchAsync();
+        var accepted = await match.AcceptMatchAsync();
         SetStatus(
-            accepted ? "ReadyCheck detected, accepted automatically" : "ReadyCheck detected, but AutoAccept failed",
-            appendLog: true);
+            accepted ? "Accepted" : "Failed to accept");
     }
 
     private void ToggleAutoAccept()
@@ -194,40 +182,25 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     {
         if (ReadRegistry.TryLaunchClient(out var launchedPath, out var errorMessage))
         {
-            SetStatus($"Client launched: {launchedPath}", appendLog: true);
+            SetStatus($"Client launched!");
+            logger.Info($"{launchedPath}");
             return;
         }
 
-        SetStatus($"Launch failed: {errorMessage}", appendLog: true);
+        SetStatus($"Launch failed!");
+        logger.Error($"Launch failed: {errorMessage}");
     }
 
     private async Task DeclineMatchAsync()
     {
         suppressNextAutoAccept = true;
-        var declined = await Accept.DeclineMatchAsync();
-        SetStatus(declined ? "Decline match request sent" : "Failed to decline match", appendLog: true);
+        var declined = await match.DeclineMatchAsync();
+        SetStatus(declined ? "Declined match" : "Failed to decline match");
     }
 
-    private void SetStatus(string message, bool appendLog)
+    private void SetStatus(string message)
     {
-        RunOnUiThread(() =>
-        {
-            StatusText = message;
-            if (appendLog)
-            {
-                AppendLog(message);
-            }
-        });
-    }
-
-    private void AppendLog(string message)
-    {
-        LogEntries.Add($"{DateTime.Now:HH:mm:ss} {message}");
-
-        if (LogEntries.Count > MaxLogEntries)
-        {
-            LogEntries.RemoveAt(0);
-        }
+        RunOnUiThread(() => { StatusText = message; });
     }
 
     private void RunOnUiThread(Action action)
@@ -257,7 +230,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         private readonly Action execute;
         private readonly Func<bool>? canExecute;
 
-        public RelayCommand(Action execute, Func<bool>? canExecute = null)
+        public RelayCommand(Action execute, Func<bool> canExecute = null)
         {
             this.execute = execute;
             this.canExecute = canExecute;
@@ -316,7 +289,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
             }
             catch (Exception ex)
             {
-                AppLog.Logging($"Command execution failed: {ex.Message}");
+                logger.Error($"Command execution failed: {ex.Message}");
             }
             finally
             {

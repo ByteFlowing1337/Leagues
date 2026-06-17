@@ -1,10 +1,14 @@
-using Leagues.Models.Utils;
+using Leagues.Models.Client;
 using Leagues.Models.Logging;
+using System;
+using System.Threading.Tasks;
 
-namespace Leagues.Services;
+namespace Leagues.Models.Services;
 
-public static class Accept
+public static class match
 {
+    private static Logger logger = Logging.Logging.GetLogger();
+
     public static async Task<bool> AcceptMatchAsync()
     {
         try
@@ -15,7 +19,7 @@ public static class Accept
         }
         catch (Exception ex)
         {
-            AppLog.Logging($"Accept request failed: {ex.Message}");
+            logger.Error($"Accept request failed: {ex.Message}");
             return false;
         }
     }
@@ -35,7 +39,7 @@ public static class Accept
         }
         catch (Exception ex)
         {
-            AppLog.Logging($"Decline request failed: {ex.Message}");
+            logger.Error($"Decline request failed: {ex.Message}");
             return false;
         }
     }

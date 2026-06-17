@@ -3,10 +3,11 @@ using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using Leagues.Models.Logging;
 
-namespace Leagues.Models.Utils;
+namespace Leagues.Models.Client;
 
 public static class Credential
 {
+    private static Logger logger = Logging.Logging.GetLogger();
     private const string TargetProcess = "LeagueClientUx";
     private const uint ProcessQueryLimitedInformation = 0x1000;
     private const int ProcessCommandLineInformationClass = 60;
@@ -47,11 +48,11 @@ public static class Credential
 
         if (!string.IsNullOrWhiteSpace(fallbackArgs))
         {
-            AppLog.Logging("League client command line found, but required arguments are incomplete.");
+            logger.Error("League client command line found, but required arguments are incomplete.");
             return fallbackArgs;
         }
 
-        AppLog.Logging("League client is not running or command line is unavailable.");
+        logger.Info("League client is not running or command line is unavailable.");
         return null;
     }
 
