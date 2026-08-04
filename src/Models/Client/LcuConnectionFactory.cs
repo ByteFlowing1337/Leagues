@@ -10,9 +10,6 @@ namespace Leagues.Models.Client;
 public static class LcuConnection
 {
     public static readonly HttpClient LcuHttpClient = LcuConnectionFactory.CreateHttpClient();
-
-    public static readonly WebSocket
-        LcuWebSocket = LcuConnectionFactory.CreateWebSocketAsync().GetAwaiter().GetResult();
 }
 
 internal static class LcuConnectionFactory
