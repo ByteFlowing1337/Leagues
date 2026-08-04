@@ -33,7 +33,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         ToggleAutoAcceptCommand = new RelayCommand(ToggleAutoAccept, Credential.IsLeagueClientRunning);
         DeclineMatchCommand = new AsyncRelayCommand(DeclineMatchAsync);
 
-        phaseMonitor.PhaseChanged += PhaseChanged;
+        phaseMonitor.PhaseChanged += OnPhaseChanged;
         phaseMonitor.MonitorError += OnPhaseMonitorError;
         clientPollTimer.Tick += ClientPollTimer_Tick;
     }
@@ -80,7 +80,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     public async Task ShutdownAsync()
     {
         clientPollTimer.Stop();
-        phaseMonitor.PhaseChanged -= PhaseChanged;
+        phaseMonitor.PhaseChanged -= OnPhaseChanged;
         phaseMonitor.MonitorError -= OnPhaseMonitorError;
         await phaseMonitor.StopAsync();
     }
@@ -129,14 +129,11 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     }
 
 
-    private void PhaseChanged(object? sender, string phase)
+    // When the game phase changes, detect if it's ReadyCheck and if user enabled the AutoAccept.
+    // If both, then accept the match.
+    private void OnPhaseChanged(object? sender, string phase)
     {
         bool isReadyCheck = string.Equals(phase, "ReadyCheck", StringComparison.OrdinalIgnoreCase);
-
-        if (!isReadyCheck)
-        {
-            suppressNextAutoAccept = false;
-        }
 
         if (!acEnabled || !isReadyCheck)
         {
