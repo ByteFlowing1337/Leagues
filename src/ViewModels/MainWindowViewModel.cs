@@ -13,7 +13,7 @@ namespace Leagues.ViewModels;
 
 public sealed class MainWindowViewModel : INotifyPropertyChanged
 {
-    public ObservableCollection<string> LogEntries => Entries;
+    public static ObservableCollection<string> LogEntries => Entries;
     private readonly Phase phaseMonitor = new();
     private readonly Dispatcher dispatcher;
     private readonly DispatcherTimer clientPollTimer = new() { Interval = TimeSpan.FromSeconds(2) };
@@ -21,6 +21,8 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     private string statusText = "Checking Client...";
     private Visibility launchClientVisibility = Visibility.Visible;
     private Visibility featureButtonsVisibility = Visibility.Collapsed;
+    private Visibility declineButtonVisibility = Visibility.Collapsed;
+    private Visibility acceptButtonVisibility = Visibility.Collapsed;
     private string autoAcceptButtonText = "Enable AutoAccept";
     private bool acEnabled;
     private volatile bool suppressNextAutoAccept;
@@ -32,6 +34,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         LaunchClientCommand = new RelayCommand(LaunchClient, () => !Credential.IsLeagueClientRunning());
         ToggleAutoAcceptCommand = new RelayCommand(ToggleAutoAccept, Credential.IsLeagueClientRunning);
         DeclineMatchCommand = new AsyncRelayCommand(DeclineMatchAsync);
+        AcceptMatchCommand = new AsyncRelayCommand(AcceptMatchAsync);
 
         phaseMonitor.PhaseChanged += OnPhaseChanged;
         phaseMonitor.MonitorError += OnPhaseMonitorError;
@@ -59,6 +62,18 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         private set => SetField(ref featureButtonsVisibility, value);
     }
 
+    public Visibility DeclineButtonVisibility
+    {
+        get => declineButtonVisibility;
+        private set => SetField(ref declineButtonVisibility, value);
+    }
+
+    public Visibility AcceptButtonVisibility
+    {
+        get => acceptButtonVisibility;
+        private set => SetField(ref acceptButtonVisibility, value);
+    }
+
 
     public string AutoAcceptButtonText
     {
@@ -69,6 +84,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     public ICommand LaunchClientCommand { get; }
     public ICommand ToggleAutoAcceptCommand { get; }
     public ICommand DeclineMatchCommand { get; }
+    public ICommand AcceptMatchCommand { get; }
 
     public async Task InitializeAsync()
     {
@@ -133,9 +149,9 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     // If both, then accept the match.
     private void OnPhaseChanged(object? sender, string phase)
     {
-        bool isReadyCheck = string.Equals(phase, "ReadyCheck", StringComparison.OrdinalIgnoreCase);
-
-        if (!acEnabled || !isReadyCheck)
+        var isReadyCheck = string.Equals(phase, "ReadyCheck", StringComparison.OrdinalIgnoreCase);
+        DeclineButtonVisibility = isReadyCheck ? Visibility.Visible : Visibility.Collapsed;
+        if (!isReadyCheck || !acEnabled)
         {
             return;
         }
@@ -166,7 +182,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     private void ToggleAutoAccept()
     {
         acEnabled = !acEnabled;
-        RunOnUiThread(() => { StatusText = acEnabled ? "AutoAccept enabled" : "AutoAccept disabled"; });
+        AutoAcceptButtonText = acEnabled ? "Disable AutoAccept" : "Enable AutoAccept";
     }
 
     private void LaunchClient()
@@ -184,9 +200,20 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
 
     private async Task DeclineMatchAsync()
     {
-        suppressNextAutoAccept = true;
+        if (acEnabled)
+        {
+            suppressNextAutoAccept = true;
+        }
+
+        AcceptButtonVisibility = Visibility.Visible;
         var declined = await Match.Decline();
         SetStatus(declined ? "Declined match" : "Failed to decline match");
+    }
+
+    private async Task AcceptMatchAsync()
+    {
+        var accepted = await Match.Accept();
+        SetStatus(accepted ? "Accepted match" : "Failed to accept match");
     }
 
     private void SetStatus(string message)

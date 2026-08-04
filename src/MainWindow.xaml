@@ -36,8 +36,13 @@
 
                 <Button Content="Decline Match"
                         Style="{StaticResource MaterialDesignOutlinedButton}"
-                        Visibility="{Binding FeatureButtonsVisibility}"
+                        Visibility="{Binding DeclineButtonVisibility}"
                         Command="{Binding DeclineMatchCommand}" />
+
+                <Button Content="Accept Match"
+                        Style="{StaticResource MaterialDesignOutlinedButton}"
+                        Visibility="{Binding AcceptButtonVisibility}"
+                        Command="{Binding AcceptMatchCommand}" />
 
                 <Button Content="Match History"
                         Style="{StaticResource MaterialDesignOutlinedButton}"
