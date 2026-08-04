@@ -6,15 +6,14 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using Leagues.Models.Utils;
 using Leagues.Models.Client;
-using Leagues.Models.Logging;
+using static Leagues.Models.Logging.Logging;
 using Leagues.Models.Services;
 
 namespace Leagues.ViewModels;
 
 public sealed class MainWindowViewModel : INotifyPropertyChanged
 {
-    public ObservableCollection<string> LogEntries => Logger.LogEntries;
-    private static Logger logger = Logging.GetLogger();
+    public ObservableCollection<string> LogEntries => Entries;
     private readonly Phase phaseMonitor = new();
     private readonly Dispatcher dispatcher;
     private readonly DispatcherTimer clientPollTimer = new() { Interval = TimeSpan.FromSeconds(2) };
@@ -30,12 +29,12 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     {
         dispatcher = Application.Current.Dispatcher;
 
-        LaunchClientCommand = new RelayCommand(LaunchClient);
-        ToggleAutoAcceptCommand = new RelayCommand(ToggleAutoAccept);
+        LaunchClientCommand = new RelayCommand(LaunchClient, () => !Credential.IsLeagueClientRunning());
+        ToggleAutoAcceptCommand = new RelayCommand(ToggleAutoAccept, Credential.IsLeagueClientRunning);
         DeclineMatchCommand = new AsyncRelayCommand(DeclineMatchAsync);
 
-        phaseMonitor.OnPhaseChanged += OnPhaseChanged;
-        phaseMonitor.OnMonitorError += OnPhaseMonitorError;
+        phaseMonitor.PhaseChanged += PhaseChanged;
+        phaseMonitor.MonitorError += OnPhaseMonitorError;
         clientPollTimer.Tick += ClientPollTimer_Tick;
     }
 
@@ -73,7 +72,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
 
     public async Task InitializeAsync()
     {
-        logger.Info("Initializing...");
+        Logger.Info("Initializing...");
         await RefreshUiAsync();
         clientPollTimer.Start();
     }
@@ -81,8 +80,8 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     public async Task ShutdownAsync()
     {
         clientPollTimer.Stop();
-        phaseMonitor.OnPhaseChanged -= OnPhaseChanged;
-        phaseMonitor.OnMonitorError -= OnPhaseMonitorError;
+        phaseMonitor.PhaseChanged -= PhaseChanged;
+        phaseMonitor.MonitorError -= OnPhaseMonitorError;
         await phaseMonitor.StopAsync();
     }
 
@@ -109,6 +108,10 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
             {
                 SetStatus("Client detected, but monitoring could not be started.");
             }
+            else
+            {
+                SetStatus("Client connected.");
+            }
         }
     }
 
@@ -126,10 +129,8 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     }
 
 
-    private void OnPhaseChanged(string phase)
+    private void PhaseChanged(object? sender, string phase)
     {
-        RunOnUiThread(() => { StatusText = acEnabled ? "AutoAccept enabled" : "AutoAccept disabled"; });
-
         bool isReadyCheck = string.Equals(phase, "ReadyCheck", StringComparison.OrdinalIgnoreCase);
 
         if (!isReadyCheck)
@@ -152,7 +153,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     }
 
 
-    private void OnPhaseMonitorError(string message)
+    private void OnPhaseMonitorError(object? sender, string message)
     {
         SetStatus(message);
     }
@@ -160,7 +161,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
 
     private async Task TryAutoAcceptAsync()
     {
-        var accepted = await match.AcceptMatchAsync();
+        var accepted = await Match.Accept();
         SetStatus(
             accepted ? "Accepted" : "Failed to accept");
     }
@@ -168,33 +169,26 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     private void ToggleAutoAccept()
     {
         acEnabled = !acEnabled;
-
-        if (acEnabled)
-        {
-            AutoAcceptButtonText = "Disable AutoAccept";
-            return;
-        }
-
-        AutoAcceptButtonText = "Enable AutoAccept";
+        RunOnUiThread(() => { StatusText = acEnabled ? "AutoAccept enabled" : "AutoAccept disabled"; });
     }
 
     private void LaunchClient()
     {
-        if (ReadRegistry.TryLaunchClient(out var launchedPath, out var errorMessage))
+        if (Registry.TryLaunchClient(out var launchedPath, out var errorMessage))
         {
             SetStatus($"Client launched!");
-            logger.Info($"{launchedPath}");
+            Logger.Info($"{launchedPath}");
             return;
         }
 
         SetStatus($"Launch failed!");
-        logger.Error($"Launch failed: {errorMessage}");
+        Logger.Error($"Launch failed: {errorMessage}");
     }
 
     private async Task DeclineMatchAsync()
     {
         suppressNextAutoAccept = true;
-        var declined = await match.DeclineMatchAsync();
+        var declined = await Match.Decline();
         SetStatus(declined ? "Declined match" : "Failed to decline match");
     }
 
@@ -225,22 +219,13 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
-    private sealed class RelayCommand : ICommand
+    private sealed class RelayCommand(Action execute, Func<bool> canExecute) : ICommand
     {
-        private readonly Action execute;
-        private readonly Func<bool>? canExecute;
-
-        public RelayCommand(Action execute, Func<bool> canExecute = null)
-        {
-            this.execute = execute;
-            this.canExecute = canExecute;
-        }
-
         public event EventHandler? CanExecuteChanged;
 
         public bool CanExecute(object? parameter)
         {
-            return canExecute?.Invoke() ?? true;
+            return canExecute.Invoke();
         }
 
         public void Execute(object? parameter)
@@ -254,17 +239,10 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         }
     }
 
-    private sealed class AsyncRelayCommand : ICommand
+    private sealed class AsyncRelayCommand(Func<Task> executeAsync, Func<bool>? canExecute = null) : ICommand
     {
-        private readonly Func<Task> executeAsync;
-        private readonly Func<bool>? canExecute;
         private bool isRunning;
 
-        public AsyncRelayCommand(Func<Task> executeAsync, Func<bool>? canExecute = null)
-        {
-            this.executeAsync = executeAsync;
-            this.canExecute = canExecute;
-        }
 
         public event EventHandler? CanExecuteChanged;
 
@@ -289,7 +267,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
             }
             catch (Exception ex)
             {
-                logger.Error($"Command execution failed: {ex.Message}");
+                Logger.Error($"Command execution failed: {ex.Message}");
             }
             finally
             {

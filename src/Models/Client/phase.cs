@@ -12,8 +12,8 @@ public sealed class Phase : IAsyncDisposable
     private Task? monitorTask;
     private string? lastPhase;
 
-    public event Action<string>? OnPhaseChanged;
-    public event Action<string>? OnMonitorError;
+    public event EventHandler<string>? PhaseChanged;
+    public event EventHandler<string>? MonitorError;
 
     public bool IsMonitoring =>
         socket is { State: WebSocketState.Open } && monitorTask is { IsCompleted: false };
@@ -32,7 +32,7 @@ public sealed class Phase : IAsyncDisposable
             monitorCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             var token = monitorCts.Token;
 
-            socket = (ClientWebSocket)await GetClient.CreateWebSocketAsync();
+            socket = (ClientWebSocket)await LcuConnectionFactory.CreateWebSocketAsync();
             await SubscribeAsync(token);
 
             monitorTask = Task.Run(() => ReceiveLoopAsync(token), token);
@@ -40,7 +40,7 @@ public sealed class Phase : IAsyncDisposable
         }
         catch (Exception ex)
         {
-            OnMonitorError?.Invoke($"Phase websocket start failed: {ex.Message}");
+            MonitorError?.Invoke(this, $"Phase websocket start failed: {ex.Message}");
             await StopAsync();
             return false;
         }
@@ -91,7 +91,7 @@ public sealed class Phase : IAsyncDisposable
                 if (!string.Equals(lastPhase, phase, StringComparison.OrdinalIgnoreCase))
                 {
                     lastPhase = phase;
-                    OnPhaseChanged?.Invoke(phase);
+                    PhaseChanged?.Invoke(this, phase);
                 }
             }
         }
@@ -100,7 +100,7 @@ public sealed class Phase : IAsyncDisposable
         }
         catch (Exception ex)
         {
-            OnMonitorError?.Invoke($"Phase websocket receive failed: {ex.Message}");
+            MonitorError?.Invoke(this, $"Phase websocket receive failed: {ex.Message}");
             await StopAsync();
         }
     }

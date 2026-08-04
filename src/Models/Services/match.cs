@@ -1,51 +1,36 @@
 using Leagues.Models.Client;
-using Leagues.Models.Logging;
-using System;
-using System.Threading.Tasks;
+using static Leagues.Models.Logging.Logging;
+using static Leagues.Models.Client.LcuConnection;
 
 namespace Leagues.Models.Services;
 
-public static class match
+public static class Match
 {
-    private static Logger logger = Logging.Logging.GetLogger();
-
-    public static async Task<bool> AcceptMatchAsync()
+    public static async Task<bool> Accept()
     {
         try
         {
-            using var client = GetClient.CreateClient();
-            using var response = await client.PostAsync("lol-matchmaking/v1/ready-check/accept", null);
+            using var response = await LcuHttpClient.PostAsync("lol-matchmaking/v1/ready-check/accept", null);
             return response.IsSuccessStatusCode;
         }
         catch (Exception ex)
         {
-            logger.Error($"Accept request failed: {ex.Message}");
+            Logger.Error($"Accept request failed: {ex.Message}");
             return false;
         }
     }
 
-    public static bool AcceptMatch()
-    {
-        return AcceptMatchAsync().GetAwaiter().GetResult();
-    }
-
-    public static async Task<bool> DeclineMatchAsync()
+    public static async Task<bool> Decline()
     {
         try
         {
-            using var client = GetClient.CreateClient();
-            using var response = await client.PostAsync("lol-matchmaking/v1/ready-check/decline", null);
+            using var response = await LcuHttpClient.PostAsync("lol-matchmaking/v1/ready-check/decline", null);
             return response.IsSuccessStatusCode;
         }
         catch (Exception ex)
         {
-            logger.Error($"Decline request failed: {ex.Message}");
+            Logger.Error($"Decline request failed: {ex.Message}");
             return false;
         }
-    }
-
-    public static bool DeclineMatch()
-    {
-        return DeclineMatchAsync().GetAwaiter().GetResult();
     }
 }

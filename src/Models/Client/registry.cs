@@ -1,15 +1,13 @@
 using Microsoft.Win32;
-using Leagues.Models.Logging;
 using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
+using static Leagues.Models.Logging.Logging;
 
 namespace Leagues.Models.Utils;
 
-public static class ReadRegistry
+public static class Registry
 {
-    private static Logger logger = Logging.Logging.GetLogger();
-
     private static readonly RegistryHive[] RegistryHives =
     {
         RegistryHive.CurrentUser,
@@ -133,7 +131,7 @@ public static class ReadRegistry
         if (string.IsNullOrWhiteSpace(launcherPath))
         {
             errorMessage = "Unable to resolve WeGame/Riot/LoL launcher path from registry and system sources.";
-            logger.Error(errorMessage);
+            Logger.Error(errorMessage);
             return false;
         }
 
@@ -157,7 +155,7 @@ public static class ReadRegistry
         catch (Exception ex)
         {
             errorMessage = ex.Message;
-            logger.Error(errorMessage);
+            Logger.Error(errorMessage);
             return false;
         }
     }
@@ -190,7 +188,7 @@ public static class ReadRegistry
                     }
                     catch (Exception ex)
                     {
-                        logger.Error($"Registry probe failed ({hive}/{view}/{registryPath}): {ex.Message}");
+                        Logger.Error($"Registry probe failed ({hive}/{view}/{registryPath}): {ex.Message}");
                     }
                 }
             }
@@ -248,7 +246,7 @@ public static class ReadRegistry
                     }
                     catch (Exception ex)
                     {
-                        logger.Error(
+                        Logger.Error(
                             $"Uninstall registry probe failed ({hive}/{view}/{uninstallRoot}): {ex.Message}");
                     }
                 }
@@ -376,7 +374,7 @@ public static class ReadRegistry
         }
         catch (Exception ex)
         {
-            logger.Error($"Unable to enumerate local drives: {ex.Message}");
+            Logger.Error($"Unable to enumerate local drives: {ex.Message}");
             return Array.Empty<string>();
         }
     }
@@ -397,7 +395,7 @@ public static class ReadRegistry
                 }
                 catch (Exception ex)
                 {
-                    logger.Error($"Unable to inspect process path for {processName}: {ex.Message}");
+                    Logger.Error($"Unable to inspect process path for {processName}: {ex.Message}");
                 }
             }
         }
