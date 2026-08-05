@@ -183,18 +183,17 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     {
         acEnabled = !acEnabled;
         AutoAcceptButtonText = acEnabled ? "Disable AutoAccept" : "Enable AutoAccept";
+        Logger.Info(acEnabled ? "AutoAccept enabled" : "AutoAccept disabled");
     }
 
     private void LaunchClient()
     {
         if (Registry.TryLaunchClient(out var launchedPath, out var errorMessage))
         {
-            SetStatus($"Client launched!");
-            Logger.Info($"{launchedPath}");
+            Logger.Info("Client launched");
             return;
         }
 
-        SetStatus($"Launch failed!");
         Logger.Error($"Launch failed: {errorMessage}");
     }
 
