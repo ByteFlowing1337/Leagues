@@ -81,14 +81,17 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         private set => SetField(ref autoAcceptButtonText, value);
     }
 
-    public ICommand LaunchClientCommand { get; }
-    public ICommand ToggleAutoAcceptCommand { get; }
-    public ICommand DeclineMatchCommand { get; }
-    public ICommand AcceptMatchCommand { get; }
+    public RelayCommand LaunchClientCommand { get; }
+    public RelayCommand ToggleAutoAcceptCommand { get; }
+    public AsyncRelayCommand DeclineMatchCommand { get; }
+    public AsyncRelayCommand AcceptMatchCommand { get; }
+
+    private bool lastClientRunning;
 
     public async Task InitializeAsync()
     {
         Logger.Info("Initializing...");
+        lastClientRunning = Credential.IsLeagueClientRunning();
         await RefreshUiAsync();
         clientPollTimer.Start();
     }
@@ -108,26 +111,35 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
 
     private async Task RefreshUiAsync()
     {
-        if (!Credential.IsLeagueClientRunning())
+        var isLeagueClientRunning = Credential.IsLeagueClientRunning();
+        if (!isLeagueClientRunning)
         {
             await phaseMonitor.StopAsync();
             ShowLaunchMode();
-            return;
+        }
+        else
+        {
+            ShowFeatureMode();
+            if (!phaseMonitor.IsMonitoring)
+            {
+                SetStatus("Client detected, connecting to API...");
+
+                if (!await phaseMonitor.StartAsync())
+                {
+                    SetStatus("Client detected, but monitoring could not be started.");
+                }
+                else
+                {
+                    SetStatus("Client connected.");
+                }
+            }
         }
 
-        ShowFeatureMode();
-        if (!phaseMonitor.IsMonitoring)
+        if (isLeagueClientRunning != lastClientRunning)
         {
-            SetStatus("Client detected, connecting to API...");
-
-            if (!await phaseMonitor.StartAsync())
-            {
-                SetStatus("Client detected, but monitoring could not be started.");
-            }
-            else
-            {
-                SetStatus("Client connected.");
-            }
+            lastClientRunning = isLeagueClientRunning;
+            LaunchClientCommand.RaiseCanExecuteChanged();
+            ToggleAutoAcceptCommand.RaiseCanExecuteChanged();
         }
     }
 
@@ -145,17 +157,18 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     }
 
 
-    // When the game phase changes, detect if it's ReadyCheck and if user enabled the AutoAccept.
-    // If both, then accept the match.
     private void OnPhaseChanged(object? sender, string phase)
     {
         var isReadyCheck = string.Equals(phase, "ReadyCheck", StringComparison.OrdinalIgnoreCase);
+        // Only display the decline button when the phase is ReadyCheck
         DeclineButtonVisibility = isReadyCheck ? Visibility.Visible : Visibility.Collapsed;
         if (!isReadyCheck || !acEnabled)
         {
             return;
         }
 
+        // If decline button is pressed while ac is enabled,
+        // suppress the next auto accept to avoid auto accepting after declining
         if (suppressNextAutoAccept)
         {
             suppressNextAutoAccept = false;
@@ -175,7 +188,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     private async Task TryAutoAcceptAsync()
     {
         var accepted = await Match.Accept();
-        SetStatus(
+        Logger.Info(
             accepted ? "Accepted" : "Failed to accept");
     }
 
@@ -206,13 +219,13 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
 
         AcceptButtonVisibility = Visibility.Visible;
         var declined = await Match.Decline();
-        SetStatus(declined ? "Declined match" : "Failed to decline match");
+        Logger.Info(declined ? "Declined match" : "Failed to decline match");
     }
 
     private async Task AcceptMatchAsync()
     {
         var accepted = await Match.Accept();
-        SetStatus(accepted ? "Accepted match" : "Failed to accept match");
+        Logger.Info(accepted ? "Accepted match" : "Failed to accept match");
     }
 
     private void SetStatus(string message)
@@ -242,7 +255,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
-    private sealed class RelayCommand(Action execute, Func<bool> canExecute) : ICommand
+    public sealed class RelayCommand(Action execute, Func<bool> canExecute) : ICommand
     {
         public event EventHandler? CanExecuteChanged;
 
@@ -262,7 +275,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         }
     }
 
-    private sealed class AsyncRelayCommand(Func<Task> executeAsync, Func<bool>? canExecute = null) : ICommand
+    public sealed class AsyncRelayCommand(Func<Task> executeAsync, Func<bool>? canExecute = null) : ICommand
     {
         private bool isRunning;
 

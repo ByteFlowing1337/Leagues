@@ -18,8 +18,6 @@ public sealed class Phase : IAsyncDisposable
     public bool IsMonitoring =>
         socket is { State: WebSocketState.Open } && monitorTask is { IsCompleted: false };
 
-    public string? CurrentPhase => lastPhase;
-
     public async Task<bool> StartAsync(CancellationToken cancellationToken = default)
     {
         if (IsMonitoring)
