@@ -28,9 +28,9 @@ public sealed partial class MainWindowViewModel : ObservableObject
 
     [ObservableProperty] private Visibility acceptButtonVisibility = Visibility.Collapsed;
 
-    [ObservableProperty] private string autoAcceptButtonText = "Enable AutoAccept";
+    [ObservableProperty] private string autoAcceptButtonText = _acEnabled ? "Disable AutoAccept" : "Enable AutoAccept";
 
-    private bool acEnabled;
+    private static bool _acEnabled = Setting.Config?.AutoAccept ?? false;
     private volatile bool suppressNextAutoAccept;
 
     [ObservableProperty]
@@ -107,7 +107,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
         var isReadyCheck = string.Equals(phase, "ReadyCheck", StringComparison.OrdinalIgnoreCase);
         DeclineButtonVisibility = isReadyCheck ? Visibility.Visible : Visibility.Collapsed;
 
-        if (!isReadyCheck || !acEnabled)
+        if (!isReadyCheck || !_acEnabled)
         {
             return;
         }
@@ -130,11 +130,17 @@ public sealed partial class MainWindowViewModel : ObservableObject
     }
 
     [RelayCommand(CanExecute = nameof(CanToggleAutoAccept))]
-    private void ToggleAutoAccept()
+    private async Task ToggleAutoAccept()
     {
-        acEnabled = !acEnabled;
-        AutoAcceptButtonText = acEnabled ? "Disable AutoAccept" : "Enable AutoAccept";
-        Logger.Info(acEnabled ? "AutoAccept enabled" : "AutoAccept disabled");
+        _acEnabled = !_acEnabled;
+        if (Setting.Config is not null)
+        {
+            Setting.Config.AutoAccept = _acEnabled;
+            await Setting.UpdateSetting();
+        }
+
+        AutoAcceptButtonText = _acEnabled ? "Disable AutoAccept" : "Enable AutoAccept";
+        Logger.Info(_acEnabled ? "AutoAccept enabled" : "AutoAccept disabled");
     }
 
     private bool CanToggleAutoAccept() => IsClientRunning;
@@ -156,7 +162,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private async Task DeclineMatchAsync()
     {
-        if (acEnabled)
+        if (_acEnabled)
         {
             suppressNextAutoAccept = true;
         }
