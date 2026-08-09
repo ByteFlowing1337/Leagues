@@ -58,13 +58,13 @@ public static class Credential
         return null;
     }
 
-    public static string? GetToken()
+    private static string? GetToken()
     {
         var args = GetArgs();
         return TryReadArgumentValue(args, "--remoting-auth-token=");
     }
 
-    public static int GetPort()
+    private static int GetPort()
     {
         var args = GetArgs();
         var portValue = TryReadArgumentValue(args, "--app-port=");

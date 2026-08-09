@@ -162,7 +162,7 @@ public sealed class Phase : IAsyncDisposable
 
     public async Task StopAsync()
     {
-        monitorCts?.Cancel();
+        monitorCts?.CancelAsync();
 
         if (socket is { State: WebSocketState.Open })
         {
@@ -172,6 +172,7 @@ public sealed class Phase : IAsyncDisposable
             }
             catch
             {
+                Logging.Logging.Logger.Error("Phase websocket close failed.");
             }
         }
 
