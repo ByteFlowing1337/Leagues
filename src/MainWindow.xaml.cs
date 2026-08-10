@@ -1,11 +1,9 @@
 ﻿using System.Windows;
-using System.Collections.ObjectModel;
 using Leagues.ViewModels;
-using Leagues.Models.Logging;
 
 namespace Leagues;
 
-public partial class MainWindow : Window
+public partial class MainWindow
 {
     private readonly MainWindowViewModel viewModel = new();
 
@@ -17,11 +15,25 @@ public partial class MainWindow : Window
 
     private async void Window_Loaded(object sender, RoutedEventArgs e)
     {
-        await viewModel.InitializeAsync();
+        try
+        {
+            await viewModel.InitializeAsync();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 
     private async void Window_Closed(object? sender, EventArgs e)
     {
-        await viewModel.ShutdownAsync();
+        try
+        {
+            await viewModel.ShutdownAsync();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 }

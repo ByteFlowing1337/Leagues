@@ -23,8 +23,6 @@ public static class Credential
 
     private static string? GetArgs()
     {
-        string? fallbackArgs = null;
-
         foreach (var process in Process.GetProcessesByName(TargetProcess))
         {
             using (process)
@@ -35,23 +33,8 @@ public static class Credential
                     continue;
                 }
 
-                // Prefer the process instance that already exposes both required args.
-                var hasToken = TryReadArgumentValue(commandLine, "--remoting-auth-token=") is not null;
-                var hasPort = TryReadArgumentValue(commandLine, "--app-port=") is not null;
-
-                if (hasToken && hasPort)
-                {
-                    return commandLine;
-                }
-
-                fallbackArgs ??= commandLine;
+                return commandLine;
             }
-        }
-
-        if (!string.IsNullOrWhiteSpace(fallbackArgs))
-        {
-            Logger.Error("League client command line found, but required arguments are incomplete.");
-            return fallbackArgs;
         }
 
         Logger.Info("League client is not running or command line is unavailable.");

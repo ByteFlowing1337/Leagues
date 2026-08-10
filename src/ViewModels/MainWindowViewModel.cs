@@ -63,7 +63,14 @@ public sealed partial class MainWindowViewModel : ObservableObject
 
     private async void ClientPollTimer_Tick(object? sender, EventArgs e)
     {
-        await RefreshUiAsync();
+        try
+        {
+            await RefreshUiAsync();
+        }
+        catch (Exception ex)
+        {
+            Logger.Error($"Error during client poll: {ex.Message}");
+        }
     }
 
     private async Task RefreshUiAsync()
@@ -102,7 +109,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
         FeatureButtonsVisibility = Visibility.Visible;
     }
 
-    private void OnPhaseChanged(object? sender, string phase)
+    private async void OnPhaseChanged(object? sender, string phase)
     {
         var isReadyCheck = string.Equals(phase, "ReadyCheck", StringComparison.OrdinalIgnoreCase);
         DeclineButtonVisibility = isReadyCheck ? Visibility.Visible : Visibility.Collapsed;
@@ -118,7 +125,14 @@ public sealed partial class MainWindowViewModel : ObservableObject
             return;
         }
 
-        _ = TryAutoAcceptAsync();
+        try
+        {
+            await TryAutoAcceptAsync();
+        }
+        catch (Exception ex)
+        {
+            Logger.Error($"Error during AutoAccept: {ex.Message}");
+        }
     }
 
     private void OnPhaseMonitorError(object? sender, string message) => SetStatus(message);
