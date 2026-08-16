@@ -28,9 +28,10 @@ public sealed partial class MainWindowViewModel : ObservableObject
 
     [ObservableProperty] private Visibility acceptButtonVisibility = Visibility.Collapsed;
 
-    [ObservableProperty] private string autoAcceptButtonText = _acEnabled ? "Disable AutoAccept" : "Enable AutoAccept";
+    [ObservableProperty] private string autoAcceptButtonText;
 
-    private static bool _acEnabled = Setting.Config?.AutoAccept ?? false;
+    [ObservableProperty] private static bool _isAutoAcceptEnabled = Setting.Config?.AutoAccept ?? false;
+
     private volatile bool suppressNextAutoAccept;
 
     [ObservableProperty]
@@ -40,6 +41,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
 
     public MainWindowViewModel()
     {
+        AutoAcceptButtonText = IsAutoAcceptEnabled ? "Disable AutoAccept" : "Enable AutoAccept";
         dispatcher = Application.Current.Dispatcher;
         phaseMonitor.PhaseChanged += OnPhaseChanged;
         phaseMonitor.MonitorError += OnPhaseMonitorError;
@@ -114,7 +116,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
         var isReadyCheck = string.Equals(phase, "ReadyCheck", StringComparison.OrdinalIgnoreCase);
         DeclineButtonVisibility = isReadyCheck ? Visibility.Visible : Visibility.Collapsed;
 
-        if (!isReadyCheck || !_acEnabled)
+        if (!isReadyCheck || !IsAutoAcceptEnabled)
         {
             return;
         }
@@ -146,15 +148,15 @@ public sealed partial class MainWindowViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanToggleAutoAccept))]
     private async Task ToggleAutoAccept()
     {
-        _acEnabled = !_acEnabled;
+        IsAutoAcceptEnabled = !IsAutoAcceptEnabled;
         if (Setting.Config is not null)
         {
-            Setting.Config.AutoAccept = _acEnabled;
+            Setting.Config.AutoAccept = IsAutoAcceptEnabled;
             await Setting.UpdateSetting();
         }
 
-        AutoAcceptButtonText = _acEnabled ? "Disable AutoAccept" : "Enable AutoAccept";
-        Logger.Info(_acEnabled ? "AutoAccept enabled" : "AutoAccept disabled");
+        AutoAcceptButtonText = IsAutoAcceptEnabled ? "Disable AutoAccept" : "Enable AutoAccept";
+        Logger.Info(IsAutoAcceptEnabled ? "AutoAccept enabled" : "AutoAccept disabled");
     }
 
     private bool CanToggleAutoAccept() => IsClientRunning;
@@ -176,7 +178,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private async Task DeclineMatchAsync()
     {
-        if (_acEnabled)
+        if (IsAutoAcceptEnabled)
         {
             suppressNextAutoAccept = true;
         }
@@ -191,6 +193,24 @@ public sealed partial class MainWindowViewModel : ObservableObject
     {
         var accepted = await Match.Accept();
         Logger.Info(accepted ? "Accepted match" : "Failed to accept match");
+    }
+
+    private static MatchHistory? _matchHistoryWindow;
+
+    [RelayCommand]
+    private static void PopMatchHistoryWindow()
+    {
+        if (_matchHistoryWindow is not null)
+        {
+            if (_matchHistoryWindow.WindowState == WindowState.Minimized)
+                _matchHistoryWindow.WindowState = WindowState.Normal;
+            _matchHistoryWindow.Activate();
+            return;
+        }
+
+        _matchHistoryWindow = new MatchHistory();
+        _matchHistoryWindow.Closed += (_, _) => _matchHistoryWindow = null;
+        _matchHistoryWindow.Show();
     }
 
     private void SetStatus(string message) => RunOnUiThread(() => StatusText = message);

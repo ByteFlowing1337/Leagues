@@ -28,11 +28,16 @@
                         Visibility="{Binding LaunchClientVisibility}"
                         Command="{Binding LaunchClientCommand}" />
 
-                <Button Content="{Binding AutoAcceptButtonText}"
-                        Style="{StaticResource MaterialDesignRaisedButton}"
-                        Margin="0,0,0,12"
-                        Visibility="{Binding FeatureButtonsVisibility}"
-                        Command="{Binding ToggleAutoAcceptCommand}" />
+                <StackPanel Orientation="Vertical"
+                            Visibility="{Binding FeatureButtonsVisibility}">
+                    <TextBlock Text="AutoAccept"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center" />
+                    <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                  IsChecked="{Binding IsAutoAcceptEnabled, Mode=OneWay}"
+                                  Command="{Binding ToggleAutoAcceptCommand}"
+                                  VerticalAlignment="Center" />
+                </StackPanel>
 
                 <Button Content="Decline Match"
                         Style="{StaticResource MaterialDesignOutlinedButton}"
@@ -48,7 +53,7 @@
                         Style="{StaticResource MaterialDesignOutlinedButton}"
                         Margin="0,12,0,0"
                         Visibility="{Binding FeatureButtonsVisibility}"
-                        Command="{Binding }" />
+                        Command="{Binding PopMatchHistoryWindowCommand}" />
 
                 <TextBlock Text="Runtime Log"
                            Margin="0,16,0,8"
