@@ -25,7 +25,7 @@ jobs:
           name: Release ${{ github.ref_name }}
           body: |
             Release created for tag ${{ github.ref_name }}.
-          files: ./publish/**
+          files: ./publish/Leagues.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           

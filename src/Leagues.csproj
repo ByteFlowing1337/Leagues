@@ -10,6 +10,15 @@
     <langVersion>latest</langVersion>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    <AllowedReferenceRelatedFileExtensions>none</AllowedReferenceRelatedFileExtensions>
+    <!-- Disables .exe.config generation and copy -->
+    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
+    <GenerateApplicationConfigurationFile>false</GenerateApplicationConfigurationFile>
+  </PropertyGroup>
+
   <ItemGroup>
     <Reference Include="System.Net.Http"/>
     <PackageReference Include="System.Text.Json" Version="8.0.5"/>
@@ -17,6 +26,14 @@
     <PackageReference Include="MaterialDesignColors" Version="5.3.1" />
     <PackageReference Include="MaterialDesignThemes" Version="5.3.1" />
     <PackageReference Include="System.Management" Version="10.0.5" />
+    <PackageReference Include="Fody" Version="6.9.3"/>
+    <PackageReference Include="Costura.Fody" Version="6.2.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
+  <Target Name="RemoveExeConfig" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
+    <Delete Files="$(TargetDir)$(TargetName).exe.config"/>
+  </Target>
 </Project>
