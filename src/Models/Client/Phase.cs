@@ -86,11 +86,13 @@ public sealed class Phase : IAsyncDisposable
                     continue;
                 }
 
-                if (!string.Equals(lastPhase, phase, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(lastPhase, phase, StringComparison.OrdinalIgnoreCase))
                 {
-                    lastPhase = phase;
-                    PhaseChanged?.Invoke(this, phase);
+                    continue;
                 }
+
+                lastPhase = phase;
+                PhaseChanged?.Invoke(this, phase!);
             }
         }
         catch (OperationCanceledException)
@@ -162,7 +164,7 @@ public sealed class Phase : IAsyncDisposable
 
     public async Task StopAsync()
     {
-        monitorCts?.CancelAsync();
+        monitorCts?.Cancel();
 
         if (socket is { State: WebSocketState.Open })
         {

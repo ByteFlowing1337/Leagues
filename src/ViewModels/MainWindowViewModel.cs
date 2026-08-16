@@ -18,26 +18,27 @@ public sealed partial class MainWindowViewModel : ObservableObject
     private readonly Dispatcher dispatcher;
     private readonly DispatcherTimer clientPollTimer = new() { Interval = TimeSpan.FromSeconds(2) };
 
-    [ObservableProperty] private string statusText = "Checking Client...";
+    [ObservableProperty] public partial string StatusText { get; private set; } = "Checking Client...";
 
-    [ObservableProperty] private Visibility launchClientVisibility = Visibility.Visible;
+    [ObservableProperty] public partial Visibility LaunchClientVisibility { get; set; } = Visibility.Visible;
 
-    [ObservableProperty] private Visibility featureButtonsVisibility = Visibility.Collapsed;
+    [ObservableProperty] public partial Visibility FeatureButtonsVisibility { get; set; } = Visibility.Collapsed;
 
-    [ObservableProperty] private Visibility declineButtonVisibility = Visibility.Collapsed;
+    [ObservableProperty] public partial Visibility DeclineButtonVisibility { get; set; } = Visibility.Collapsed;
 
-    [ObservableProperty] private Visibility acceptButtonVisibility = Visibility.Collapsed;
+    [ObservableProperty] public partial Visibility AcceptButtonVisibility { get; set; } = Visibility.Collapsed;
 
-    [ObservableProperty] private string autoAcceptButtonText;
+    [ObservableProperty] public partial string AutoAcceptButtonText { get; set; }
 
-    [ObservableProperty] private static bool _isAutoAcceptEnabled = Setting.Config?.AutoAccept ?? false;
+    [ObservableProperty]
+    public partial bool IsAutoAcceptEnabled { get; private set; } = Setting.Config?.AutoAccept ?? false;
 
     private volatile bool suppressNextAutoAccept;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(LaunchClientCommand))]
     [NotifyCanExecuteChangedFor(nameof(ToggleAutoAcceptCommand))]
-    private bool isClientRunning;
+    private partial bool IsClientRunning { get; set; }
 
     public MainWindowViewModel()
     {

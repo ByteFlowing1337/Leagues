@@ -16,8 +16,10 @@ internal static class LcuConnectionFactory
 {
     public static HttpClient CreateHttpClient()
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(Token);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(Port);
+        if (string.IsNullOrWhiteSpace(Token))
+            throw new ArgumentException("Value cannot be null or whitespace.", nameof(Token));
+        if (Port is <= 0 or > 65535)
+            throw new ArgumentException("Value cannot be null or whitespace.", nameof(Port));
 
         var handler = new HttpClientHandler
         {
@@ -38,12 +40,14 @@ internal static class LcuConnectionFactory
 
     public static async Task<WebSocket> CreateWebSocketAsync()
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(Token);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(Port);
+        if (string.IsNullOrWhiteSpace(Token))
+            throw new ArgumentException("Value cannot be null or whitespace.", nameof(Token));
+        if (Port is <= 0 or > 65535)
+            throw new ArgumentException("Value cannot be null or whitespace.", nameof(Port));
 
         var clientWebSocket = new ClientWebSocket();
-        clientWebSocket.Options.RemoteCertificateValidationCallback =
-            (sender, certificate, chain, sslPolicyErrors) => true;
+        ServicePointManager.ServerCertificateValidationCallback =
+            (_, _, _, _) => true;
         var credentials = Convert.ToBase64String(Encoding.ASCII.GetBytes($"riot:{Token}"));
         clientWebSocket.Options.SetRequestHeader("Authorization", $"Basic {credentials}");
         var uri = new Uri($"wss://127.0.0.1:{Port}/");

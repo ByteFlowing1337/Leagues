@@ -149,7 +149,7 @@ public static class Registry
             }
 
             Process.Start(startInfo);
-            launchedPath = launcherPath;
+            launchedPath = launcherPath!;
             return true;
         }
         catch (Exception ex)
@@ -281,7 +281,7 @@ public static class Registry
             return null;
         }
 
-        var expanded = Environment.ExpandEnvironmentVariables(rawValue.Trim());
+        var expanded = Environment.ExpandEnvironmentVariables(rawValue!.Trim());
 
         var directPath = NormalizeExecutablePath(expanded);
         if (!string.IsNullOrWhiteSpace(directPath) && File.Exists(directPath))
@@ -441,7 +441,7 @@ public static class Registry
             return null;
         }
 
-        var expanded = Environment.ExpandEnvironmentVariables(rawValue.Trim());
+        var expanded = Environment.ExpandEnvironmentVariables(rawValue!.Trim());
 
         var quotedMatch = Regex.Match(expanded, "\"(?<path>[^\"]+?\\.exe)\"", RegexOptions.IgnoreCase);
         if (quotedMatch.Success)

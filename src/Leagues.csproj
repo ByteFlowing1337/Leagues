@@ -2,14 +2,17 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net48</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <langVersion>latest</langVersion>
   </PropertyGroup>
 
   <ItemGroup>
+    <Reference Include="System.Net.Http"/>
+    <PackageReference Include="System.Text.Json" Version="8.0.5"/>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2"/>
     <PackageReference Include="MaterialDesignColors" Version="5.3.1" />
     <PackageReference Include="MaterialDesignThemes" Version="5.3.1" />

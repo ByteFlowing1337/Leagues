@@ -36,6 +36,6 @@ public static class Setting
     public static async Task UpdateSetting()
     {
         var updatedContent = JsonSerializer.Serialize(Config, Option);
-        await File.WriteAllTextAsync(SettingPath, updatedContent);
+        await Task.Run(() => File.WriteAllText(SettingPath, updatedContent));
     }
 }
