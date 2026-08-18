@@ -1,6 +1,6 @@
 using Leagues.Models.Client;
-using static Leagues.Models.Logging.Logging;
 using static Leagues.Models.Client.LcuConnection;
+using static Leagues.Models.Logging.Logging;
 
 namespace Leagues.Models.Services;
 

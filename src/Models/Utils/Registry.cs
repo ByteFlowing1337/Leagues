@@ -1,7 +1,7 @@
-using Microsoft.Win32;
 using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
+using Microsoft.Win32;
 using static Leagues.Models.Logging.Logging;
 
 namespace Leagues.Models.Utils;

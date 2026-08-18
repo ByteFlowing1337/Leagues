@@ -57,12 +57,14 @@ public static class MatchMapper
 
                 var identity = game.ParticipantIdentities
                     .FirstOrDefault(pi => pi.Player.Puuid == playerUuid);
-                if (identity == null) return null;
+                if (identity == null)
+                    return null;
 
                 // Then, find the specific participant with the participant id
                 var participant = game.Participants
                     .FirstOrDefault(p => p.ParticipantId == identity.ParticipantId);
-                if (participant == null) return null;
+                if (participant == null)
+                    return null;
 
                 // Finally, summary the match using the participant stats
                 // and other details

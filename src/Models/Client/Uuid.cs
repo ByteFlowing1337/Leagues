@@ -1,6 +1,6 @@
-﻿using System.Text.Json;
-using static Leagues.Models.Logging.Logging;
+using System.Text.Json;
 using static Leagues.Models.Client.LcuConnection;
+using static Leagues.Models.Logging.Logging;
 
 namespace Leagues.Models.Client;
 

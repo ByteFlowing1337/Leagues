@@ -1,6 +1,6 @@
 using System.Windows.Input;
-using static Leagues.Models.Logging.Logging;
 using Leagues.Models.MatchMapper;
+using static Leagues.Models.Logging.Logging;
 
 namespace Leagues;
 

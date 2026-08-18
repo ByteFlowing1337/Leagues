@@ -1,6 +1,6 @@
 using System.Net;
-using System.Net.Http.Headers;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.WebSockets;
 using System.Text;
 using static Leagues.Models.Client.Credential;
