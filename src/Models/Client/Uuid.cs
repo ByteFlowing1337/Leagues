@@ -10,7 +10,7 @@ public static class Uuid
     /// Fetches the UUID of a player using their player ID in format "ABC#12345"
     /// </summary>
     /// <returns>UUID</returns>
-    public static async Task<string?> FetchPlayerUuid(string playerId)
+    internal static async Task<string?> FetchPlayerUuid(string playerId)
     {
         try
         {

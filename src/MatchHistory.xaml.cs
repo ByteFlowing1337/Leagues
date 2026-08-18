@@ -1,9 +1,6 @@
-﻿using System.Text.Json;
 using System.Windows.Input;
-using Leagues.Models.Client;
 using static Leagues.Models.Logging.Logging;
 using Leagues.Models.MatchMapper;
-using Leagues.Models.Services;
 
 namespace Leagues;
 
@@ -21,7 +18,7 @@ public partial class MatchHistory
     {
         if (e.Key != Key.Enter || isQuerying)
             return;
-
+        // To avoid race if user entered too quickly?
         isQuerying = true;
         ResultsList.ItemsSource = null;
 

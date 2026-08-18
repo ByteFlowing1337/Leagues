@@ -1,8 +1,7 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Leagues.Models.Client;
 using Leagues.Models.Dto;
-using Leagues.Models.Logging;
 using Leagues.Models.Services;
 
 namespace Leagues.Models.MatchMapper;
