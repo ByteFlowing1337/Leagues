@@ -63,6 +63,7 @@
                         BorderThickness="1"
                         BorderBrush="{DynamicResource MaterialDesignDivider}">
                     <ListBox ItemsSource="{Binding LogEntries}"
+                             PreviewMouseLeftButtonDown="LogEntries_OnPreviewMouseLeftButtonDown"
                              ScrollViewer.VerticalScrollBarVisibility="Auto"
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled" />
                 </Border>
