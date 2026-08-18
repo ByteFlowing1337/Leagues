@@ -9,97 +9,94 @@ namespace Leagues.Models.Utils;
 public static class Registry
 {
     private static readonly RegistryHive[] RegistryHives =
-    {
+    [
         RegistryHive.CurrentUser,
         RegistryHive.LocalMachine
-    };
+    ];
 
     private static readonly RegistryView[] RegistryViews =
-    {
+    [
         RegistryView.Registry64,
         RegistryView.Registry32
-    };
+    ];
 
-    public static string? GetRiotClientPath()
+    private static string? GetRiotClientPath()
     {
         var driveRoots = GetFixedDriveRoots();
 
         return ResolveFirstExistingPath(
             TryGetProcessExecutablePath("RiotClientServices"),
             ResolveExecutableFromRegistry(
-                new[]
-                {
+                [
                     @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\RiotClientServices.exe",
                     @"SOFTWARE\Riot Games\Riot Client",
                     @"SOFTWARE\WOW6432Node\Riot Games\Riot Client"
-                },
-                new[] { string.Empty, "Path", "InstallPath", "InstallLocation" },
-                new[] { "RiotClientServices.exe" }),
+                ],
+                [string.Empty, "Path", "InstallPath", "InstallLocation"],
+                ["RiotClientServices.exe"]),
             ResolveFromUninstallRegistry(
-                new[] { "Riot Client", "League of Legends" },
-                new[] { "DisplayIcon", "InstallLocation", "InstallSource", "UninstallString" },
-                new[] { "RiotClientServices.exe" }),
+                ["Riot Client", "League of Legends"],
+                ["DisplayIcon", "InstallLocation", "InstallSource", "UninstallString"],
+                ["RiotClientServices.exe"]),
             ResolveFromKnownFolders(
-                new[] { "RiotClientServices.exe" },
+                ["RiotClientServices.exe"],
                 GetCandidateFolders(
                     @"Riot Games\Riot Client",
                     driveRoots)));
     }
 
-    public static string? GetWegameLOLPath()
+    private static string? GetWegameLolPath()
     {
         var driveRoots = GetFixedDriveRoots();
 
         return ResolveFirstExistingPath(
             TryGetProcessExecutablePath("LeagueClient"),
             ResolveExecutableFromRegistry(
-                new[]
-                {
+                [
                     @"SOFTWARE\Tencent\LOL",
                     @"SOFTWARE\Riot Games\League of Legends",
                     @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\League of Legends.exe"
-                },
-                new[] { string.Empty, "setup", "Path", "InstallPath", "InstallLocation" },
-                new[] { "League of Legends.exe", "LeagueClient.exe" }),
+                ],
+                [string.Empty, "setup", "Path", "InstallPath", "InstallLocation"],
+                ["League of Legends.exe", "LeagueClient.exe"]),
             ResolveFromUninstallRegistry(
-                new[] { "League of Legends", "LOL", "英雄联盟" },
-                new[] { "DisplayIcon", "InstallLocation", "InstallSource", "UninstallString" },
-                new[] { "League of Legends.exe", "LeagueClient.exe" }),
+                ["League of Legends", "LOL", "英雄联盟"],
+                ["DisplayIcon", "InstallLocation", "InstallSource", "UninstallString"],
+                ["League of Legends.exe", "LeagueClient.exe"]),
             ResolveFromKnownFolders(
-                new[] { "League of Legends.exe", "LeagueClient.exe" },
+                ["League of Legends.exe", "LeagueClient.exe"],
                 GetCandidateFolders(
                     @"Riot Games\League of Legends",
                     driveRoots)));
     }
 
-    public static string? GetWegamePath()
+    private static string? GetWegamePath()
     {
         var driveRoots = GetFixedDriveRoots();
 
         return ResolveFirstExistingPath(
             TryGetProcessExecutablePath("wegame"),
             ResolveExecutableFromRegistry(
-                new[]
-                {
+                [
                     @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\wegame.exe",
                     @"SOFTWARE\Tencent\WeGame",
                     @"SOFTWARE\Tencent\TGP",
                     @"wegame\DefaultIcon"
-                },
-                new[] { string.Empty, "Default", "Path", "InstallPath", "InstallLocation" },
-                new[] { "wegame.exe", "tgp_launcher.exe" }),
+                ],
+                [string.Empty, "Default", "Path", "InstallPath", "InstallLocation"],
+                ["wegame.exe", "tgp_launcher.exe"]),
             ResolveFromUninstallRegistry(
-                new[] { "WeGame", "Tencent" },
-                new[] { "DisplayIcon", "InstallLocation", "InstallSource", "UninstallString" },
-                new[] { "wegame.exe", "tgp_launcher.exe" }),
+                ["WeGame", "Tencent"],
+                ["DisplayIcon", "InstallLocation", "InstallSource", "UninstallString"],
+                ["wegame.exe", "tgp_launcher.exe"]),
             ResolveFromKnownFolders(
-                new[] { "wegame.exe", "tgp_launcher.exe" },
+                ["wegame.exe", "tgp_launcher.exe"],
                 GetCandidateFolders(
                     @"Tencent\WeGame",
                     driveRoots)));
     }
 
-    public static string? GetPreferredLauncherPath()
+    private static string? GetPreferredLauncherPath()
     {
         var wegamePath = GetWegamePath();
         if (!string.IsNullOrWhiteSpace(wegamePath) && File.Exists(wegamePath))
@@ -113,7 +110,7 @@ public static class Registry
             return riotPath;
         }
 
-        var lolPath = GetWegameLOLPath();
+        var lolPath = GetWegameLolPath();
         if (!string.IsNullOrWhiteSpace(lolPath) && File.Exists(lolPath))
         {
             return lolPath;
@@ -161,9 +158,9 @@ public static class Registry
     }
 
     private static string? ResolveExecutableFromRegistry(
-        IEnumerable<string> registryPaths,
-        IEnumerable<string> valueNames,
-        IEnumerable<string> executableNames)
+        IReadOnlyList<string> registryPaths,
+        IReadOnlyList<string> valueNames,
+        IReadOnlyList<string> executableNames)
     {
         foreach (var hive in RegistryHives)
         {
@@ -198,9 +195,9 @@ public static class Registry
     }
 
     private static string? ResolveFromUninstallRegistry(
-        IEnumerable<string> displayNameKeywords,
-        IEnumerable<string> valueNames,
-        IEnumerable<string> executableNames)
+        IReadOnlyList<string> displayNameKeywords,
+        IReadOnlyList<string> valueNames,
+        IReadOnlyList<string> executableNames)
     {
         var uninstallRoots = new[]
         {
@@ -258,8 +255,8 @@ public static class Registry
 
     private static string? ResolveExecutableFromRegistryKey(
         RegistryKey key,
-        IEnumerable<string> valueNames,
-        IEnumerable<string> executableNames)
+        IReadOnlyList<string> valueNames,
+        IReadOnlyList<string> executableNames)
     {
         foreach (var valueName in valueNames)
         {
@@ -308,8 +305,8 @@ public static class Registry
     }
 
     private static string? ResolveFromKnownFolders(
-        IEnumerable<string> executableNames,
-        IEnumerable<string> folders)
+        IReadOnlyList<string> executableNames,
+        IReadOnlyList<string> folders)
     {
         foreach (var folder in folders)
         {
@@ -357,25 +354,25 @@ public static class Registry
             }
         }
 
-        return folders
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToArray();
+        return [.. folders.Distinct(StringComparer.OrdinalIgnoreCase)];
     }
 
     private static string[] GetFixedDriveRoots()
     {
         try
         {
-            return DriveInfo
-                .GetDrives()
-                .Where(drive => drive.DriveType == DriveType.Fixed && drive.IsReady)
-                .Select(drive => drive.RootDirectory.FullName)
-                .ToArray();
+            return
+            [
+                .. DriveInfo
+                    .GetDrives()
+                    .Where(drive => drive.DriveType == DriveType.Fixed && drive.IsReady)
+                    .Select(drive => drive.RootDirectory.FullName)
+            ];
         }
         catch (Exception ex)
         {
             Logger.Error($"Unable to enumerate local drives: {ex.Message}");
-            return Array.Empty<string>();
+            return [];
         }
     }
 
