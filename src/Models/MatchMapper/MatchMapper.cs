@@ -35,9 +35,9 @@ public static class MatchMapper
         [JsonPropertyName("games")] public GamesWrapper Games { get; } = new();
     }
 
-    public static async Task<List<MatchSummary>?> ToSummaries(string playerName, uint begIndex, uint endIndex)
+    public static async Task<List<MatchSummary>?> ToSummaries(string playerName, int begIndex, int endIndex)
     {
-        var json = await Match.QueryAsync(playerName, 0, 20);
+        var json = await Match.QueryAsync(playerName, begIndex, endIndex);
         if (json == null)
         {
             return null;
@@ -53,7 +53,8 @@ public static class MatchMapper
         var summaries = history!.Games.Games
             .Select(game =>
             {
-                // First, find the participant identity by puuid for the participant id (1-10)
+                //First, find the participant identity by puuid for the participant id (1-10)
+
                 var identity = game.ParticipantIdentities
                     .FirstOrDefault(pi => pi.Player.Puuid == playerUuid);
                 if (identity == null) return null;
