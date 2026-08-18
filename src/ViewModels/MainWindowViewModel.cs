@@ -143,7 +143,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
     private static async Task TryAutoAcceptAsync()
     {
         var accepted = await Match.Accept();
-        Logger.Info(accepted ? "Accepted" : "Failed to accept");
+        Logger.Info(accepted ? "Match Accepted" : "Failed to accept match");
     }
 
     [RelayCommand(CanExecute = nameof(CanToggleAutoAccept))]
@@ -186,14 +186,14 @@ public sealed partial class MainWindowViewModel : ObservableObject
 
         AcceptButtonVisibility = Visibility.Visible;
         var declined = await Match.Decline();
-        Logger.Info(declined ? "Declined match" : "Failed to decline match");
+        Logger.Info(declined ? "Match declined" : "Failed to decline match");
     }
 
     [RelayCommand]
     private async Task AcceptMatchAsync()
     {
         var accepted = await Match.Accept();
-        Logger.Info(accepted ? "Accepted match" : "Failed to accept match");
+        Logger.Info(accepted ? "Match accepted" : "Failed to accept match");
     }
 
     private static MatchHistory? _matchHistoryWindow;
