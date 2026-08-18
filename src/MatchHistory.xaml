@@ -3,9 +3,38 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:local="clr-namespace:Leagues"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:convertor="clr-namespace:Leagues.Models.Convertor"
+        xmlns:mapper="clr-namespace:Leagues.Models.MatchMapper"
         mc:Ignorable="d"
         Title="MatchHistory" Height="450" Width="800">
+    <Window.Resources>
+        <convertor:WinLossConverter x:Key="WinLossConverter" />
+        <convertor:WinLossColorConverter x:Key="WinLossColorConverter" />
+    </Window.Resources>
     <Grid>
+        <TextBox
+            x:Name="InputPlayerName"
+            Style="{StaticResource MaterialDesignOutlinedTextBox}"
+            materialDesign:HintAssist.Hint="Player Name"
+            KeyDown="QueryMatch_OnEnterKeyDown"
+            Width="250" Height="50" Margin="0,0,0,300" />
+        <ListBox x:Name="ResultsList" Margin="0,10,0,0" Width="250" MaxHeight="150">
+            <ListBox.ItemTemplate>
+                <DataTemplate DataType="{x:Type mapper:MatchMapper+MatchSummary}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding Win, Converter={StaticResource WinLossConverter}}"
+                                   Foreground="{Binding Win, Converter={StaticResource WinLossColorConverter}}"
+                                   FontWeight="Bold" Width="40" />
+                        <TextBlock Text="{Binding Kills}" />
+                        <TextBlock Text="/" />
+                        <TextBlock Text="{Binding Deaths}" />
+                        <TextBlock Text="/" />
+                        <TextBlock Text="{Binding Assists}" />
+                        <TextBlock Text="{Binding PlayedAt, StringFormat='  MM-dd HH:mm'}" />
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
     </Grid>
 </Window>

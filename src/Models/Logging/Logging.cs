@@ -13,6 +13,7 @@ public enum LogLevel
 {
     Debug,
     Info,
+    Warn,
     Error,
 }
 
@@ -22,6 +23,12 @@ public class Logger(LogLevel logLevel = LogLevel.Info)
     {
         if (logLevel <= LogLevel.Info)
             Log(message, "INFO");
+    }
+
+    public void Warn(string message)
+    {
+        if (logLevel <= LogLevel.Warn)
+            Log(message, "WARN");
     }
 
     public void Error(string message)

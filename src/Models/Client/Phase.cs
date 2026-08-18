@@ -105,6 +105,20 @@ public sealed class Phase : IAsyncDisposable
         }
     }
 
+    /*
+    Possible phase:
+    None - default, when nothing is happening
+    Lobby
+    Matchmaking - in queue
+    ReadyCheck - ready pop-up
+    ChampSelect
+    GameStart - between champ select ending and .exe starting
+    InProgress - in game
+    TerminatedInError - when game ends unexpectedly, this happens for example when you exit practice tool
+    WaitingForStats - between game ending and stats screen
+    PreEndOfGame - honor screen and first stage with LP gained
+    EndOfGame - post game view with all players, items, K/D/A etc
+    */
     private static string? TryExtractPhase(string payload)
     {
         if (string.IsNullOrWhiteSpace(payload))
