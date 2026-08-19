@@ -30,8 +30,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
 
     [ObservableProperty] public partial string AutoAcceptButtonText { get; set; }
 
-    [ObservableProperty]
-    public partial bool IsAutoAcceptEnabled { get; private set; } = Setting.Config?.AutoAccept ?? false;
+    [ObservableProperty] public partial bool IsAutoAcceptEnabled { get; set; } = Setting.Config?.AutoAccept ?? false;
 
     private volatile bool suppressNextAutoAccept;
 
@@ -149,7 +148,6 @@ public sealed partial class MainWindowViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanToggleAutoAccept))]
     private async Task ToggleAutoAccept()
     {
-        IsAutoAcceptEnabled = !IsAutoAcceptEnabled;
         if (Setting.Config is not null)
         {
             Setting.Config.AutoAccept = IsAutoAcceptEnabled;

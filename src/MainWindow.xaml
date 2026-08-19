@@ -34,7 +34,7 @@
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center" />
                     <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}"
-                                  IsChecked="{Binding IsAutoAcceptEnabled, Mode=OneWay}"
+                                  IsChecked="{Binding IsAutoAcceptEnabled, Mode=TwoWay}"
                                   Command="{Binding ToggleAutoAcceptCommand}"
                                   VerticalAlignment="Center" />
                 </StackPanel>
