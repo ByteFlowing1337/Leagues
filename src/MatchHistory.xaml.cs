@@ -1,5 +1,6 @@
 using System.Windows.Input;
-using Leagues.Models.MatchMapper;
+using Leagues.Models.Mapper;
+using Leagues.ViewModels;
 using static Leagues.Models.Logging.Logging;
 
 namespace Leagues;
@@ -38,7 +39,13 @@ public partial class MatchHistory
             else if (summaries.Count == 0)
                 Snackbar.MessageQueue?.Enqueue("No matches found.");
             else
-                ResultsList.ItemsSource = summaries;
+            {
+                var viewModels = summaries
+                    .Select(summary => new MatchSummaryViewModel(summary))
+                    .ToList();
+                ResultsList.ItemsSource = viewModels;
+                await Task.WhenAll(viewModels.Select(vm => vm.LoadAvatarAsync()));
+            }
         }
         catch (Exception ex)
         {

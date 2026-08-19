@@ -35,4 +35,7 @@ public static class LcuEndPoint
 
     public static string GameDetails(long gameId)
         => $"lol-match-history/v1/games/{gameId}";
+
+    public static string ChampionAvatar(int championId)
+        => $"lol-game-data/assets/v1/champion-icons/{championId}.png";
 }

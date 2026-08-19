@@ -4,7 +4,7 @@ using Leagues.Models.Client;
 using Leagues.Models.Dto;
 using Leagues.Models.Services;
 
-namespace Leagues.Models.MatchMapper;
+namespace Leagues.Models.Mapper;
 
 public static class MatchMapper
 {
