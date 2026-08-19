@@ -32,7 +32,7 @@ public static class MatchMapper
 
     public class MatchHistoryResponse
     {
-        [JsonPropertyName("games")] public GamesWrapper Games { get; } = new();
+        [JsonPropertyName("games")] public GamesWrapper Games { get; set; } = new();
     }
 
     public static async Task<List<MatchSummary>?> ToSummaries(string playerName, int begIndex, int endIndex)

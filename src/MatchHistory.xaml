@@ -19,6 +19,11 @@
             materialDesign:HintAssist.Hint="Player Name"
             KeyDown="QueryMatch_OnEnterKeyDown"
             Width="250" Height="50" Margin="0,0,0,300" />
+        <materialDesign:Snackbar x:Name="Snackbar">
+            <materialDesign:Snackbar.MessageQueue>
+                <materialDesign:SnackbarMessageQueue />
+            </materialDesign:Snackbar.MessageQueue>
+        </materialDesign:Snackbar>
         <ListBox x:Name="ResultsList" Margin="0,10,0,0" Width="250" MaxHeight="150">
             <ListBox.ItemTemplate>
                 <DataTemplate DataType="{x:Type mapper:MatchMapper+MatchSummary}">

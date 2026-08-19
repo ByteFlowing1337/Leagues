@@ -4,7 +4,7 @@ namespace Leagues.Models.Dto;
 
 public class GamesWrapper
 {
-    [JsonPropertyName("games")] public List<GameDto> Games { get; } = [];
+    [JsonPropertyName("games")] public List<GameDto> Games { get; set; } = [];
 }
 
 public record GameDto

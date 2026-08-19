@@ -28,26 +28,22 @@ public partial class MatchHistory
 
             if (string.IsNullOrWhiteSpace(playerName))
             {
-                ResultsList.ItemsSource = new[] { "Enter a player name." };
+                Snackbar.MessageQueue?.Enqueue("Player name cannot be empty.");
                 return;
             }
 
             var summaries = await MatchMapper.ToSummaries(playerName, 0, 20);
             if (summaries is null)
-            {
-                ResultsList.ItemsSource = new[] { "No matches found or error fetching matches." };
-            }
+                Snackbar.MessageQueue?.Enqueue("No matches found or error fetching matches.");
             else if (summaries.Count == 0)
-            {
-                ResultsList.ItemsSource = new[] { "No matches found." };
-            }
-
-            ResultsList.ItemsSource = summaries;
+                Snackbar.MessageQueue?.Enqueue("No matches found.");
+            else
+                ResultsList.ItemsSource = summaries;
         }
         catch (Exception ex)
         {
-            Logger.Error($"Match query failed: {ex.Message}");
-            ResultsList.ItemsSource = new[] { "Error fetching matches." };
+            Snackbar.MessageQueue?.Enqueue($"Error fetching match history: {ex.Message}");
+            Logger.Error($"Error fetching match history for player {InputPlayerName.Text}: {ex}");
         }
         finally
         {
