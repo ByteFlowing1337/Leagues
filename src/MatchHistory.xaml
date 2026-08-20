@@ -7,40 +7,84 @@
         xmlns:convertor="clr-namespace:Leagues.Models.Convertor"
         xmlns:viewModels="clr-namespace:Leagues.ViewModels"
         mc:Ignorable="d"
-        Title="MatchHistory" Height="450" Width="800">
+        Title="Match History" Height="450" Width="800"
+        MinHeight="300" MinWidth="400">
     <Window.Resources>
         <convertor:WinLossConverter x:Key="WinLossConverter" />
         <convertor:WinLossColorConverter x:Key="WinLossColorConverter" />
     </Window.Resources>
-    <Grid>
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />   <!-- search box -->
+            <RowDefinition Height="*" />      <!-- results list -->
+            <RowDefinition Height="Auto" />   <!-- snackbar -->
+        </Grid.RowDefinitions>
+
         <TextBox
             x:Name="InputPlayerName"
+            Grid.Row="0"
             Style="{StaticResource MaterialDesignOutlinedTextBox}"
             materialDesign:HintAssist.Hint="Player Name"
             KeyDown="QueryMatch_OnEnterKeyDown"
-            Width="250" Height="50" Margin="0,0,0,300" />
-        <materialDesign:Snackbar x:Name="Snackbar">
+            HorizontalAlignment="Stretch"
+            Height="50" />
+        <materialDesign:Snackbar x:Name="Snackbar" Grid.Row="2">
             <materialDesign:Snackbar.MessageQueue>
                 <materialDesign:SnackbarMessageQueue />
             </materialDesign:Snackbar.MessageQueue>
         </materialDesign:Snackbar>
-        <ListBox x:Name="ResultsList" Margin="0,10,0,0" Width="350" MaxHeight="150">
+        <ListBox x:Name="ResultsList"
+                 Grid.Row="1"
+                 Margin="0,10,0,0"
+                 HorizontalAlignment="Stretch"
+                 VerticalAlignment="Stretch"
+                 HorizontalContentAlignment="Stretch"
+                 Style="{StaticResource MaterialDesignListBox}">
             <ListBox.ItemTemplate>
                 <DataTemplate DataType="{x:Type viewModels:MatchSummaryViewModel}">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding Summary.Win, Converter={StaticResource WinLossConverter}}"
-                                   Foreground="{Binding Summary.Win, Converter={StaticResource WinLossColorConverter}}"
-                                   FontWeight="Bold" Width="40" />
-                        <Image Source="{Binding ChampionAvatar}"
-                               Width="40" Height="40" Margin="5,0,5,0" />
-                        <TextBlock Text="{Binding Summary.Kills}" />
-                        <TextBlock Text="/" />
-                        <TextBlock Text="{Binding Summary.Deaths}" />
-                        <TextBlock Text="/" />
-                        <TextBlock Text="{Binding Summary.Assists}" />
-                        <TextBlock Text="{Binding Summary.PlayedAt, StringFormat='  MM-dd HH:mm'}" />
-                        <TextBlock Text="{Binding Summary.GameMode}" Margin="10,0,0,0" />
-                    </StackPanel>
+                    <materialDesign:Card Margin="0,3" Padding="8"
+                                         HorizontalAlignment="Stretch"
+                                         materialDesign:ElevationAssist.Elevation="Dp1">
+                        <DockPanel LastChildFill="False" VerticalAlignment="Center">
+
+                            <materialDesign:Chip Content="{Binding Summary.GameMode}"
+                                                 DockPanel.Dock="Right"
+                                                 FontSize="11" />
+
+                            <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Summary.Win, Converter={StaticResource WinLossConverter}}"
+                                           Foreground="{Binding Summary.Win, Converter={StaticResource WinLossColorConverter}}"
+                                           Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
+                                           FontWeight="Bold" Width="40" VerticalAlignment="Center" />
+
+                                <Border Width="40" Height="40" CornerRadius="20" Margin="5,0,5,0">
+                                    <Border.Background>
+                                        <ImageBrush ImageSource="{Binding ChampionAvatar}" Stretch="UniformToFill" />
+                                    </Border.Background>
+                                    <Border.Effect>
+                                        <DropShadowEffect BlurRadius="6" ShadowDepth="1" Opacity="0.3" />
+                                    </Border.Effect>
+                                </Border>
+
+                                <TextBlock Style="{StaticResource MaterialDesignBody1TextBlock}"
+                                           VerticalAlignment="Center">
+                                    <Run Text="{Binding Summary.Kills, Mode=OneWay}" FontWeight="Bold" />
+                                    <Run Text="/" Foreground="Gray" />
+                                    <Run Text="{Binding Summary.Deaths, Mode=OneWay}" FontWeight="Bold" />
+                                    <Run Text="/" Foreground="Gray" />
+                                    <Run Text="{Binding Summary.Assists, Mode=OneWay}" FontWeight="Bold" />
+                                </TextBlock>
+
+                                <TextBlock Text="{Binding Summary.PlayedAt, StringFormat='  MM-dd '}"
+                                           Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                           VerticalAlignment="Center" Margin="10,0,0,0" />
+                                <TextBlock Text="{Binding Summary.Duration, StringFormat=' {0:mm}:{0:ss} '}"
+                                           Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                           VerticalAlignment="Center" />
+                            </StackPanel>
+                        </DockPanel>
+                    </materialDesign:Card>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
