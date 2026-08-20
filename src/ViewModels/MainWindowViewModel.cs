@@ -90,7 +90,11 @@ public sealed partial class MainWindowViewModel : ObservableObject
         if (!phaseMonitor.IsMonitoring)
         {
             SetStatus("Client detected, connecting to API...");
-            await phaseMonitor.StartAsync();
+            var success = await phaseMonitor.StartAsync();
+            if (!success)
+            {
+                SetStatus("Failed to connect to API.");
+            }
         }
         else
         {

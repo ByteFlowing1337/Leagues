@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Windows.Media.Imaging;
 using Leagues.Models.Client;
 
