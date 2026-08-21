@@ -1,5 +1,4 @@
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Leagues.Models.Client;
 using Leagues.Models.Dto;
 using Leagues.Models.Services;
@@ -30,11 +29,6 @@ public static class MatchMapper
         public int Assists { get; } = assists;
     }
 
-    public class MatchHistoryResponse
-    {
-        [JsonPropertyName("games")] public GamesWrapper Games { get; set; } = new();
-    }
-
     public static async Task<List<MatchSummary>?> ToSummaries(string playerName, int begIndex, int endIndex)
     {
         var json = await Match.QueryAsync(playerName, begIndex, endIndex);
@@ -49,7 +43,7 @@ public static class MatchMapper
         var summaries = history!.Games.Games
             .Select(game =>
             {
-                var participant = game.Participants.FirstOrDefault();
+                var participant = game.Participants.First();
                 return new MatchSummary(
                     gameId: game.GameId,
                     playedAt: DateTimeOffset.FromUnixTimeMilliseconds(game.GameCreation),
