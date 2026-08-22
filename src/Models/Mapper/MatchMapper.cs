@@ -43,13 +43,13 @@ public static class MatchMapper
         var summaries = history!.Games.Games
             .Select(game =>
             {
-                var participant = game.Participants.First();
+                var participant = game.Participants[0];
                 return new MatchSummary(
                     gameId: game.GameId,
                     playedAt: DateTimeOffset.FromUnixTimeMilliseconds(game.GameCreation),
                     duration: TimeSpan.FromSeconds(game.GameDuration),
                     gameMode: game.GameMode,
-                    championId: participant!.ChampionId,
+                    championId: participant.ChampionId,
                     win: participant.Stats.Win,
                     kills: participant.Stats.Kills,
                     deaths: participant.Stats.Deaths,
