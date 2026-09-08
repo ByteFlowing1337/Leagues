@@ -33,6 +33,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
     [ObservableProperty] public partial bool IsAutoAcceptEnabled { get; set; } = Setting.Config?.AutoAccept ?? false;
 
     private volatile bool suppressNextAutoAccept;
+    private volatile bool showingFeatureMode;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(LaunchClientCommand))]
@@ -86,20 +87,18 @@ public sealed partial class MainWindowViewModel : ObservableObject
             return;
         }
 
-        ShowFeatureMode();
+        if (!showingFeatureMode)
+            ShowFeatureMode();
+
         if (!phaseMonitor.IsMonitoring)
         {
             SetStatus("Client detected, connecting to API...");
             var success = await phaseMonitor.StartAsync();
             if (!success)
-            {
                 SetStatus("Failed to connect to API.");
-            }
         }
         else
-        {
             SetStatus("Client connected.");
-        }
     }
 
     private void ShowLaunchMode()
@@ -111,6 +110,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
 
     private void ShowFeatureMode()
     {
+        showingFeatureMode = true;
         LaunchClientVisibility = Visibility.Collapsed;
         FeatureButtonsVisibility = Visibility.Visible;
     }
@@ -221,11 +221,8 @@ public sealed partial class MainWindowViewModel : ObservableObject
     private void RunOnUiThread(Action action)
     {
         if (dispatcher.CheckAccess())
-        {
             action();
-            return;
-        }
-
-        dispatcher.Invoke(action);
+        else
+            dispatcher.Invoke(action);
     }
 }
