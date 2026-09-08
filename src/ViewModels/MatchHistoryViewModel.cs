@@ -7,9 +7,9 @@ namespace Leagues.ViewModels;
 public partial class MatchSummaryViewModel : ObservableObject
 {
     [ObservableProperty] public partial BitmapImage? ChampionAvatar { get; private set; }
-    [ObservableProperty] public partial MatchMapper.MatchSummary Summary { get; private set; }
+    [ObservableProperty] public partial MatchSummary Summary { get; private set; }
 
-    public MatchSummaryViewModel(MatchMapper.MatchSummary summary)
+    public MatchSummaryViewModel(MatchSummary summary)
     {
         Summary = summary;
     }
