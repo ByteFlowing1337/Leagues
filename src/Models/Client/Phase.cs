@@ -121,7 +121,7 @@ public sealed class Phase : IAsyncDisposable
     }
 
 
-    private static string? TryExtractPhase(string payload)
+    internal static string? TryExtractPhase(string payload)
     {
         if (string.IsNullOrWhiteSpace(payload))
         {
