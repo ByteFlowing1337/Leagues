@@ -9,57 +9,57 @@ public class MatchHistoryDtoJsonTests
     public void Deserialize_MapsNestedMatchHistoryData()
     {
         const string json = """
-            {
-              "accountId": 42,
-              "platformId": "NA1",
-              "games": {
-                "gameCount": 1,
-                "games": [
-                  {
-                    "gameId": 123456,
-                    "gameCreation": 1720000000000,
-                    "gameDuration": 1800,
-                    "gameMode": "CLASSIC",
-                    "participants": [
-                      {
-                        "championId": 99,
-                        "participantId": 1,
-                        "stats": {
-                          "kills": 10,
-                          "deaths": 2,
-                          "assists": 8,
-                          "win": true,
-                          "causedGameEndFromIGNBSurrender": true,
-                          "gameEndedInIGNBSurrender": true
-                        },
-                        "timeline": {
-                          "lane": "MIDDLE",
-                          "goldPerMinDeltas": { "0-10": 350.5 }
-                        }
-                      }
-                    ],
-                    "participantIdentities": [
-                      {
-                        "participantId": 1,
-                        "player": {
-                          "gameName": "Player",
-                          "tagLine": "1234",
-                          "puuid": "player-id"
-                        }
-                      }
-                    ],
-                    "teams": [
-                      {
-                        "teamId": 100,
-                        "firstDargon": true,
-                        "bans": [{ "championId": 1, "pickTurn": 1 }]
-                      }
-                    ]
-                  }
-                ]
-              }
-            }
-            """;
+                            {
+                              "accountId": 42,
+                              "platformId": "NA1",
+                              "games": {
+                                "gameCount": 1,
+                                "games": [
+                                  {
+                                    "gameId": 123456,
+                                    "gameCreation": 1720000000000,
+                                    "gameDuration": 1800,
+                                    "gameMode": "CLASSIC",
+                                    "participants": [
+                                      {
+                                        "championId": 99,
+                                        "participantId": 1,
+                                        "stats": {
+                                          "kills": 10,
+                                          "deaths": 2,
+                                          "assists": 8,
+                                          "win": true,
+                                          "causedGameEndFromIGNBSurrender": true,
+                                          "gameEndedInIGNBSurrender": true
+                                        },
+                                        "timeline": {
+                                          "lane": "MIDDLE",
+                                          "goldPerMinDeltas": { "0-10": 350.5 }
+                                        }
+                                      }
+                                    ],
+                                    "participantIdentities": [
+                                      {
+                                        "participantId": 1,
+                                        "player": {
+                                          "gameName": "Player",
+                                          "tagLine": "1234",
+                                          "puuid": "player-id"
+                                        }
+                                      }
+                                    ],
+                                    "teams": [
+                                      {
+                                        "teamId": 100,
+                                        "firstDargon": true,
+                                        "bans": [{ "championId": 1, "pickTurn": 1 }]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            }
+                            """;
 
         var response = JsonSerializer.Deserialize<MatchHistoryResponse>(json)!;
         var game = Assert.Single(response.Games.Games);

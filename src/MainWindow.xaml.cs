@@ -1,4 +1,3 @@
-using System.Windows;
 using Leagues.ViewModels;
 
 namespace Leagues;

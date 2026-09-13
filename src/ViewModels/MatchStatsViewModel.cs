@@ -1,4 +1,4 @@
-﻿namespace Leagues.ViewModels;
+namespace Leagues.ViewModels;
 
 public class MatchStatsViewModel
 {

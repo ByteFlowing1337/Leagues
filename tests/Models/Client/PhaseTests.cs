@@ -63,8 +63,8 @@ public class PhaseTests
     public void TryExtractPhase_ObjectEventBodyWithMismatchedUri_ReturnsNull()
     {
         const string payload = """
-            [5, "OnJsonApiEvent", { "uri": "/lol-lobby/v2/lobby", "data": "ReadyCheck" }]
-            """;
+                               [5, "OnJsonApiEvent", { "uri": "/lol-lobby/v2/lobby", "data": "ReadyCheck" }]
+                               """;
 
         Assert.Null(Phase.TryExtractPhase(payload));
     }
@@ -73,8 +73,8 @@ public class PhaseTests
     public void TryExtractPhase_ObjectEventBodyWithMatchingUriAndData_ReturnsData()
     {
         const string payload = """
-            [5, "OnJsonApiEvent", { "uri": "/lol-gameflow/v1/gameflow-phase", "data": "ChampSelect" }]
-            """;
+                               [5, "OnJsonApiEvent", { "uri": "/lol-gameflow/v1/gameflow-phase", "data": "ChampSelect" }]
+                               """;
 
         Assert.Equal("ChampSelect", Phase.TryExtractPhase(payload));
     }
@@ -83,8 +83,8 @@ public class PhaseTests
     public void TryExtractPhase_ObjectEventBodyWithoutUri_StillReturnsData()
     {
         const string payload = """
-            [5, "OnJsonApiEvent", { "data": "InProgress" }]
-            """;
+                               [5, "OnJsonApiEvent", { "data": "InProgress" }]
+                               """;
 
         Assert.Equal("InProgress", Phase.TryExtractPhase(payload));
     }
@@ -93,8 +93,8 @@ public class PhaseTests
     public void TryExtractPhase_ObjectEventBodyWithoutData_ReturnsNull()
     {
         const string payload = """
-            [5, "OnJsonApiEvent", { "uri": "/lol-gameflow/v1/gameflow-phase" }]
-            """;
+                               [5, "OnJsonApiEvent", { "uri": "/lol-gameflow/v1/gameflow-phase" }]
+                               """;
 
         Assert.Null(Phase.TryExtractPhase(payload));
     }
