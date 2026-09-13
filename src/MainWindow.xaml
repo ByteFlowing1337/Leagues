@@ -7,79 +7,34 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         Style="{StaticResource MaterialDesignWindow}"
         mc:Ignorable="d"
-        Loaded="Window_Loaded"
-        Closed="Window_Closed"
         d:DataContext="{d:DesignInstance vm:MainWindowViewModel}"
         Title="Leagues" Height="500" Width="800"
         WindowStartupLocation="CenterScreen">
     <DockPanel>
         <Menu DockPanel.Dock="Bottom">
-            <MenuItem Header="Home">
+            <MenuItem Header="Home"
+                      Command="{Binding ShowHomeViewCommand}">
                 <MenuItem.Icon>
                     <materialDesign:PackIcon Kind="Home" />
                 </MenuItem.Icon>
             </MenuItem>
             <Separator />
             <MenuItem Header="Match"
-                      Command="{Binding PopMatchHistoryWindowCommand}">
+                      Command="{Binding ShowMatchViewCommand}">
                 <MenuItem.Icon>
                     <materialDesign:PackIcon Kind="SwordCross" />
                 </MenuItem.Icon>
             </MenuItem>
+            <MenuItem Header="Misc"
+                      Command="{Binding ShowMiscViewCommand}">
+                <MenuItem.Icon>
+                    <materialDesign:PackIcon Kind="DotsHorizontal" />
+                </MenuItem.Icon>
+            </MenuItem>
         </Menu>
 
-        <Grid Margin="24">
-            <materialDesign:Card Padding="24" Width="300" Height="400" HorizontalAlignment="Center"
-                                 VerticalAlignment="Center">
-                <StackPanel>
-                    <TextBlock Text="{Binding StatusText}"
-                               Style="{StaticResource MaterialDesignHeadlineSmallTextBlock}"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
-                               Margin="0 0 0 16" />
+        <ContentControl Content="{Binding CurrentViewModel}"
+                        Margin="24" />
 
-                    <Button Content="Launch Client"
-                            Style="{StaticResource MaterialDesignRaisedButton}"
-                            Margin="0,0,0,12"
-                            Visibility="{Binding LaunchClientVisibility}"
-                            Command="{Binding LaunchClientCommand}" />
-
-                    <StackPanel Orientation="Vertical"
-                                Visibility="{Binding FeatureButtonsVisibility}">
-                        <TextBlock Text="AutoAccept"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center" />
-                        <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}"
-                                      IsChecked="{Binding IsAutoAcceptEnabled, Mode=TwoWay}"
-                                      Command="{Binding ToggleAutoAcceptCommand}"
-                                      VerticalAlignment="Center" />
-                    </StackPanel>
-
-                    <Button Content="Decline Match"
-                            Style="{StaticResource MaterialDesignOutlinedButton}"
-                            Visibility="{Binding DeclineButtonVisibility}"
-                            Command="{Binding DeclineMatchCommand}" />
-
-                    <Button Content="Accept Match"
-                            Style="{StaticResource MaterialDesignOutlinedButton}"
-                            Visibility="{Binding AcceptButtonVisibility}"
-                            Command="{Binding AcceptMatchCommand}" />
-
-
-                    <TextBlock Text="Runtime Log"
-                               Margin="0,16,0,8"
-                               Style="{StaticResource MaterialDesignTitleSmallTextBlock}" />
-
-                    <Border Height="150"
-                            BorderThickness="1"
-                            BorderBrush="{DynamicResource MaterialDesignDivider}">
-                        <ListBox ItemsSource="{Binding LogEntries}"
-                                 PreviewMouseLeftButtonDown="LogEntries_OnPreviewMouseLeftButtonDown"
-                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled" />
-                    </Border>
-                </StackPanel>
-            </materialDesign:Card>
-        </Grid>
     </DockPanel>
 </Window>
