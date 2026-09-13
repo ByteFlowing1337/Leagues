@@ -12,7 +12,22 @@ public sealed class Phase : IAsyncDisposable
     private Task? monitorTask;
     private string? lastPhase;
 
+    /// <summary>
+    /// Possible phase:<br/>
+    /// None - default, when nothing is happening<br/>
+    /// Lobby<br/>
+    /// Matchmaking - in queue<br/>
+    /// ReadyCheck - ready pop-up<br/>
+    /// ChampSelect<br/>
+    /// GameStart - between champ select ending and .exe starting<br/>
+    /// InProgress - in game<br/>
+    /// TerminatedInError - when game ends unexpectedly, this happens for example when you exit practice tool<br/>
+    /// WaitingForStats - between game ending and stats screen<br/>
+    /// PreEndOfGame - honor screen and first stage with LP gained<br/>
+    /// EndOfGame - post game view with all players, items, K/D/A etc<br/>
+    /// </summary>
     public event EventHandler<string>? PhaseChanged;
+
     public event EventHandler<string>? MonitorError;
 
     public bool IsMonitoring =>
@@ -105,20 +120,7 @@ public sealed class Phase : IAsyncDisposable
         }
     }
 
-    /*
-    Possible phase:
-    None - default, when nothing is happening
-    Lobby
-    Matchmaking - in queue
-    ReadyCheck - ready pop-up
-    ChampSelect
-    GameStart - between champ select ending and .exe starting
-    InProgress - in game
-    TerminatedInError - when game ends unexpectedly, this happens for example when you exit practice tool
-    WaitingForStats - between game ending and stats screen
-    PreEndOfGame - honor screen and first stage with LP gained
-    EndOfGame - post game view with all players, items, K/D/A etc
-    */
+
     private static string? TryExtractPhase(string payload)
     {
         if (string.IsNullOrWhiteSpace(payload))
