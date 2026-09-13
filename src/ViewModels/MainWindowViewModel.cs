@@ -25,10 +25,10 @@ public sealed partial class MainWindowViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanShowMatchView))]
     private void ShowMatchView()
     {
-        CurrentViewModel = new MatchHistory();
+        CurrentViewModel = new MatchView();
     }
 
-    private bool CanShowMatchView() => CurrentViewModel.GetType() != typeof(MatchHistory);
+    private bool CanShowMatchView() => CurrentViewModel.GetType() != typeof(MatchView);
 
     [RelayCommand(CanExecute = nameof(CanShowMiscView))]
     private void ShowMiscView()

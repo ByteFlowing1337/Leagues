@@ -1,3 +1,4 @@
+﻿using System.Windows.Controls;
 using System.Windows.Input;
 using Leagues.Models.Mapper;
 using Leagues.ViewModels;
@@ -5,21 +6,20 @@ using static Leagues.Models.Logging.Logging;
 
 namespace Leagues;
 
-public partial class MatchHistory
+public partial class MatchSearchView : UserControl
 {
-    // To avoid race if user entered too quickly?
-    private bool isQuerying;
-
-    public MatchHistory()
+    public MatchSearchView()
     {
         InitializeComponent();
     }
+
+    // To avoid race if user entered too quickly?
+    private bool isQuerying;
 
     private async void QueryMatch_OnEnterKeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key != Key.Enter || isQuerying)
             return;
-        // To avoid race if user entered too quickly?
         isQuerying = true;
         ResultsList.ItemsSource = null;
 

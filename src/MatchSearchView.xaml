@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="Leagues.MatchHistory"
+﻿<UserControl x:Class="Leagues.MatchSearchView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -7,19 +7,17 @@
              xmlns:convertor="clr-namespace:Leagues.Models.Convertor"
              xmlns:viewModels="clr-namespace:Leagues.ViewModels"
              mc:Ignorable="d"
-             MinHeight="300" MinWidth="400">
+             d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
         <convertor:WinLossConverter x:Key="WinLossConverter" />
         <convertor:WinLossColorConverter x:Key="WinLossColorConverter" />
     </UserControl.Resources>
-
-    <Grid Margin="16">
+    <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />   <!-- search box -->
+            <RowDefinition Height="150" />   <!-- search box -->
             <RowDefinition Height="*" />      <!-- results list -->
             <RowDefinition Height="Auto" />   <!-- snackbar -->
         </Grid.RowDefinitions>
-
         <TextBox
             x:Name="InputPlayerName"
             Grid.Row="0"
