@@ -23,7 +23,7 @@ public static class LcuEndPoint
                 })
         ]);
 
-        cleanedPlayerName.Trim().Normalize(NormalizationForm.FormC);
+        cleanedPlayerName = cleanedPlayerName.Trim().Normalize(NormalizationForm.FormC);
         return $"lol-summoner/v1/summoners?name={Uri.EscapeDataString(cleanedPlayerName)}";
     }
 
