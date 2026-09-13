@@ -13,18 +13,8 @@ public sealed class Phase : IAsyncDisposable
     private string? lastPhase;
 
     /// <summary>
-    /// Possible phase:<br/>
-    /// None - default, when nothing is happening<br/>
-    /// Lobby<br/>
-    /// Matchmaking - in queue<br/>
-    /// ReadyCheck - ready pop-up<br/>
-    /// ChampSelect<br/>
-    /// GameStart - between champ select ending and .exe starting<br/>
-    /// InProgress - in game<br/>
-    /// TerminatedInError - when game ends unexpectedly, this happens for example when you exit practice tool<br/>
-    /// WaitingForStats - between game ending and stats screen<br/>
-    /// PreEndOfGame - honor screen and first stage with LP gained<br/>
-    /// EndOfGame - post game view with all players, items, K/D/A etc<br/>
+    /// Invoked when phase is changed, passing the phase as
+    /// a string argument to event handlers
     /// </summary>
     public event EventHandler<string>? PhaseChanged;
 
@@ -66,8 +56,9 @@ public sealed class Phase : IAsyncDisposable
             return;
         }
 
-        var subscriptionMessage = Encoding.UTF8.GetBytes("[5, \"OnJsonApiEvent_lol-gameflow_v1_gameflow-phase\"]");
-        await socket.SendAsync(new ArraySegment<byte>(subscriptionMessage), WebSocketMessageType.Text, true, token);
+        var subscriptionMessage = "[5, \"OnJsonApiEvent_lol-gameflow_v1_gameflow-phase\"]"u8;
+        await socket.SendAsync(new ArraySegment<byte>(subscriptionMessage.ToArray()), WebSocketMessageType.Text, true,
+            token);
     }
 
     private async Task ReceiveLoopAsync(CancellationToken token)
@@ -121,12 +112,26 @@ public sealed class Phase : IAsyncDisposable
     }
 
 
-    internal static string? TryExtractPhase(string payload)
+    /// <summary>
+    /// Extract the phase from the payload received from websockets
+    /// </summary>
+    /// <returns>
+    /// None - default, when nothing is happening<br/>
+    /// Lobby<br/>
+    /// Matchmaking - in queue<br/>
+    /// ReadyCheck - ready pop-up<br/>
+    /// ChampSelect<br/>
+    /// GameStart - between champ select ending and .exe starting<br/>
+    /// InProgress - in game<br/>
+    /// TerminatedInError - when game ends unexpectedly, this happens for example when you exit practice tool<br/>
+    /// WaitingForStats - between game ending and stats screen<br/>
+    /// PreEndOfGame - honor screen and first stage with LP gained<br/>
+    /// EndOfGame - post game view with all players, items, K/D/A<br/>
+    /// </returns>
+    public static string? TryExtractPhase(string payload)
     {
         if (string.IsNullOrWhiteSpace(payload))
-        {
             return null;
-        }
 
         try
         {
@@ -134,42 +139,30 @@ public sealed class Phase : IAsyncDisposable
             var root = doc.RootElement;
 
             if (root.ValueKind != JsonValueKind.Array || root.GetArrayLength() < 3)
-            {
                 return null;
-            }
 
             var eventName = root[1].ValueKind == JsonValueKind.String ? root[1].GetString() : null;
             if (!string.Equals(eventName, "OnJsonApiEvent", StringComparison.OrdinalIgnoreCase) &&
                 !string.Equals(eventName, "OnJsonApiEvent_lol-gameflow_v1_gameflow-phase",
                     StringComparison.OrdinalIgnoreCase))
-            {
                 return null;
-            }
 
             var eventBody = root[2];
             if (eventBody.ValueKind == JsonValueKind.String)
-            {
                 return eventBody.GetString();
-            }
 
             if (eventBody.ValueKind != JsonValueKind.Object)
-            {
                 return null;
-            }
 
             if (eventBody.TryGetProperty("uri", out var uriElement) && uriElement.ValueKind == JsonValueKind.String)
             {
                 var uri = uriElement.GetString();
                 if (!string.Equals(uri, "/lol-gameflow/v1/gameflow-phase", StringComparison.OrdinalIgnoreCase))
-                {
                     return null;
-                }
             }
 
             if (eventBody.TryGetProperty("data", out var dataElement) && dataElement.ValueKind == JsonValueKind.String)
-            {
                 return dataElement.GetString();
-            }
         }
         catch (JsonException)
         {
