@@ -29,6 +29,8 @@ public class MatchSummary(
 
 public static class MatchMapper
 {
+    private static readonly Dictionary<string, List<MatchSummary>> Cache = new();
+
     public static async Task<List<MatchSummary>?> ToSummaries(string playerName, int begIndex, int endIndex)
     {
         var json = await Match.QueryAsync(playerName, begIndex, endIndex);
@@ -38,6 +40,9 @@ public static class MatchMapper
         var playerUuid = await Uuid.FetchPlayerUuid(playerName);
         if (playerUuid == null)
             return null;
+
+        if (Cache.TryGetValue(playerUuid, out var res))
+            return res;
 
         var history = JsonSerializer.Deserialize<MatchHistoryResponse>(json);
         var summaries = history!.Games.Games
@@ -57,6 +62,7 @@ public static class MatchMapper
             })
             .Where(summary => summary != null)
             .ToList();
+        Cache.Add(playerName, summaries);
         return summaries;
     }
 }
