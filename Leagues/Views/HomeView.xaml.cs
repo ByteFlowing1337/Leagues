@@ -14,12 +14,11 @@ public partial class HomeView
     public HomeView()
     {
         InitializeComponent();
+        DataContext = new HomeViewModel();
         Loaded += OnLoaded;
         Unloaded += OnUnloaded;
     }
 
-
-    public static HomeView CreateHomeView() => new() { DataContext = new HomeViewModel() };
 
     /// <summary>
     /// Stores the entry text to the clipboard.

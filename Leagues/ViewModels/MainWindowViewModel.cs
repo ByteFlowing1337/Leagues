@@ -5,7 +5,9 @@ namespace Leagues.ViewModels;
 
 public sealed partial class MainWindowViewModel : ObservableObject
 {
-    private static readonly HomeView Home = HomeView.CreateHomeView();
+    private static readonly HomeView Home = new();
+    private static readonly MatchView MatchView = new();
+    private static readonly Misc Misc = new();
 
 
     [ObservableProperty]
@@ -25,7 +27,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanShowMatchView))]
     private void ShowMatchView()
     {
-        CurrentViewModel = new MatchView();
+        CurrentViewModel = MatchView;
     }
 
     private bool CanShowMatchView() => CurrentViewModel.GetType() != typeof(MatchView);
@@ -33,7 +35,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanShowMiscView))]
     private void ShowMiscView()
     {
-        CurrentViewModel = new Misc();
+        CurrentViewModel = Misc;
     }
 
     private bool CanShowMiscView() => CurrentViewModel.GetType() != typeof(Misc);
