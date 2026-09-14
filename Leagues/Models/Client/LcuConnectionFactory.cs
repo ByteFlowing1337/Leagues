@@ -27,10 +27,7 @@ internal static class LcuConnectionFactory
                 HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
         };
 
-        var client = new HttpClient(handler)
-        {
-            BaseAddress = new Uri($"https://127.0.0.1:{Port}/")
-        };
+        var client = new HttpClient(handler) { BaseAddress = new Uri($"https://127.0.0.1:{Port}/") };
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
             "Basic",
             Convert.ToBase64String(Encoding.ASCII.GetBytes($"riot:{Token}")));

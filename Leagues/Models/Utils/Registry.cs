@@ -134,11 +134,7 @@ public static class Registry
 
         try
         {
-            var startInfo = new ProcessStartInfo
-            {
-                FileName = launcherPath,
-                UseShellExecute = true
-            };
+            var startInfo = new ProcessStartInfo { FileName = launcherPath, UseShellExecute = true };
 
             if (launcherPath.Contains("RiotClientServices.exe", StringComparison.OrdinalIgnoreCase))
             {

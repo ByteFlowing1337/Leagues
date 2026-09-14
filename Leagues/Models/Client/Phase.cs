@@ -56,7 +56,7 @@ public sealed class Phase : IAsyncDisposable
             return;
         }
 
-        var subscriptionMessage = "[5, \"OnJsonApiEvent_lol-gameflow_v1_gameflow-phase\"]"u8;
+        var subscriptionMessage = "[5, \"OnJsonApiEvent_lol-gameflow_v1_gameflow-phase\"]";
         await socket.SendAsync(new ArraySegment<byte>(subscriptionMessage.ToArray()), WebSocketMessageType.Text, true,
             token);
     }

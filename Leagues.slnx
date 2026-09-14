@@ -1,8 +1,8 @@
 <Solution>
-  <Folder Name="/src/">
-    <Project Path="src/Leagues.csproj" />
+    <Folder Name="/Leagues/">
+        <Project Path="Leagues/Leagues.csproj"/>
   </Folder>
-  <Folder Name="/tests/">
-    <Project Path="tests/Leagues.Tests.csproj" />
+    <Folder Name="/Leagues.Tests/">
+        <Project Path="Leagues.Tests/Leagues.Tests.csproj"/>
   </Folder>
 </Solution>
