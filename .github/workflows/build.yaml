@@ -13,8 +13,10 @@ jobs:
       - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
-      - run: dotnet build src\Leagues.csproj -c Release
-      - run: dotnet test tests\Leagues.Tests.csproj -c Debug
+      - run: dotnet build -c Release
+      - run: dotnet build -c Debug
+      - run: dotnet test -c Release
+      - run: dotnet test -c Debug
   format:
     name: Formatting
     runs-on: windows-latest
