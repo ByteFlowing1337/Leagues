@@ -54,6 +54,7 @@
                         BorderBrush="{DynamicResource MaterialDesignDivider}">
                     <ListBox ItemsSource="{Binding LogEntries}"
                              PreviewMouseLeftButtonDown="LogEntries_OnPreviewMouseLeftButtonDown"
+                             VirtualizingPanel.ScrollUnit="Pixel"
                              ScrollViewer.VerticalScrollBarVisibility="Auto"
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled" />
                 </Border>
