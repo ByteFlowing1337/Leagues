@@ -78,7 +78,6 @@ public sealed class Phase : IAsyncDisposable
 
                     if (result.MessageType == WebSocketMessageType.Close)
                     {
-                        await StopAsync();
                         return;
                     }
 
@@ -107,7 +106,6 @@ public sealed class Phase : IAsyncDisposable
         catch (Exception ex)
         {
             MonitorError?.Invoke(this, $"Phase websocket receive failed: {ex.Message}");
-            await StopAsync();
         }
     }
 
