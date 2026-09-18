@@ -156,6 +156,7 @@ public partial class HomeViewModel : ObservableObject
 
     private void ShowLaunchMode()
     {
+        showingFeatureMode = false;
         LaunchClientVisibility = Visibility.Visible;
         FeatureButtonsVisibility = Visibility.Collapsed;
         SetStatus("Client is not running.");
