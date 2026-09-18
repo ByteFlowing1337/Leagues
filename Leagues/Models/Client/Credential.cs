@@ -5,11 +5,14 @@ using static Leagues.Models.Logging.Logging;
 
 namespace Leagues.Models.Client;
 
+public readonly struct ClientCredentials(string token, int port)
+{
+    public string Token { get; } = token;
+    public int Port { get; } = port;
+}
+
 public static class Credential
 {
-    public static readonly string? Token = GetToken();
-    public static readonly int Port = GetPort();
-
     private const string TargetProcess = "LeagueClientUx";
     private const uint ProcessQueryLimitedInformation = 0x1000;
     private const int ProcessCommandLineInformationClass = 60;
@@ -19,6 +22,22 @@ public static class Credential
     public static bool IsLeagueClientRunning()
     {
         return Process.GetProcessesByName(TargetProcess).Length > 0;
+    }
+
+    public static bool TryGetCredentials(out ClientCredentials credentials)
+    {
+        var args = GetArgs();
+        var token = TryReadArgumentValue(args, "--remoting-auth-token=");
+        var portValue = TryReadArgumentValue(args, "--app-port=");
+
+        if (!string.IsNullOrWhiteSpace(token) && int.TryParse(portValue, out var port) && port is > 0 and <= 65535)
+        {
+            credentials = new ClientCredentials(token!, port);
+            return true;
+        }
+
+        credentials = default;
+        return false;
     }
 
     private static string? GetArgs()
@@ -39,20 +58,6 @@ public static class Credential
 
         Logger.Info("League client is not running or command line is unavailable.");
         return null;
-    }
-
-    private static string? GetToken()
-    {
-        var args = GetArgs();
-        return TryReadArgumentValue(args, "--remoting-auth-token=");
-    }
-
-    private static int GetPort()
-    {
-        var args = GetArgs();
-        var portValue = TryReadArgumentValue(args, "--app-port=");
-
-        return int.TryParse(portValue, out var port) ? port : -1;
     }
 
     private static string? TryReadArgumentValue(string? arguments, string argumentName)
